@@ -15,6 +15,8 @@ import {
 import AppLeftNav from './app-left-nav';
 import FullWidthSection from './full-width-section';
 
+import CustomBaseTheme from '../customBaseTheme';
+
 const githubButton = (
   <IconButton
     iconClassName="muidocs-icon-custom-github"
@@ -42,7 +44,7 @@ const Master = React.createClass({
 
   getInitialState() {
     return {
-      muiTheme: getMuiTheme(),
+      muiTheme: getMuiTheme(CustomBaseTheme),
       leftNavOpen: false,
     };
   },
