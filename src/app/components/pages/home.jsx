@@ -143,19 +143,13 @@ const HomePage = React.createClass({
     return (
       <FullWidthSection useContent={true} contentStyle={styles}>
         <HomeFeature
-          heading="Get Started"
-          route="/get-started"
-          img="images/get-started.svg"
-          firstChild={true}
-        />
-        <HomeFeature
           heading="Customization"
           route="/customization"
           img="images/css-framework.svg"
         />
         <HomeFeature
-          heading="Components"
-          route="/components"
+          heading="Page Types"
+          route="/page-types"
           img="images/components.svg"
           lastChild={true}
         />

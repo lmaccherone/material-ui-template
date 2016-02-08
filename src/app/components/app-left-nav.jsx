@@ -86,17 +86,6 @@ const AppLeftNav = React.createClass({
           valueLink={{value: location.pathname, requestChange: onRequestChangeList}}
         >
           <ListItem
-            primaryText="Get Started"
-            primaryTogglesNestedList={true}
-            nestedItems={[
-              <ListItem primaryText="Prerequisites" value="/get-started/prerequisites" />,
-              <ListItem primaryText="Installation" value="/get-started/installation" />,
-              <ListItem primaryText="Usage" value="/get-started/usage" />,
-              <ListItem primaryText="Server Rendering" value="/get-started/server-rendering" />,
-              <ListItem primaryText="Examples" value="/get-started/examples" />,
-            ]}
-          />
-          <ListItem
             primaryText="Customization"
             primaryTogglesNestedList={true}
             nestedItems={[
@@ -109,10 +98,8 @@ const AppLeftNav = React.createClass({
             primaryText="Page Types"
             primaryTogglesNestedList={true}
             nestedItems={[
-              <ListItem primaryText="Community" value="/page-types/community" />,
               <ListItem primaryText="Markdown" value="/page-types/markdown" />,
               <ListItem primaryText="Showcase" value="/page-types/showcase" />,
-              <ListItem primaryText="Related projects" value="/page-types/related-projects" />,
             ]}
           />
         </SelectableList>

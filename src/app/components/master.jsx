@@ -150,7 +150,6 @@ const Master = React.createClass({
 
     const styles = this.getStyles();
     const title =
-      history.isActive('/get-started') ? 'Get Started' :
       history.isActive('/customization') ? 'Customization' :
       history.isActive('/components') ? 'Components' :
       history.isActive('/page-types') ? 'Page Types' : '';
