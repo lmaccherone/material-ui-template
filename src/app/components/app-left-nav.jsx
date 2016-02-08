@@ -106,13 +106,13 @@ const AppLeftNav = React.createClass({
             ]}
           />
           <ListItem
-            primaryText="Discover More"
+            primaryText="Page Types"
             primaryTogglesNestedList={true}
             nestedItems={[
-              <ListItem primaryText="Community" value="/discover-more/community" />,
-              <ListItem primaryText="Contributing" value="/discover-more/contributing" />,
-              <ListItem primaryText="Showcase" value="/discover-more/showcase" />,
-              <ListItem primaryText="Related projects" value="/discover-more/related-projects" />,
+              <ListItem primaryText="Community" value="/page-types/community" />,
+              <ListItem primaryText="Markdown" value="/page-types/markdown" />,
+              <ListItem primaryText="Showcase" value="/page-types/showcase" />,
+              <ListItem primaryText="Related projects" value="/page-types/related-projects" />,
             ]}
           />
         </SelectableList>

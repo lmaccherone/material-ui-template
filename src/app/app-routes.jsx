@@ -19,10 +19,10 @@ import Colors from './components/pages/customization/colors';
 import Themes from './components/pages/customization/themes';
 import InlineStyles from './components/pages/customization/inline-styles';
 
-import Community from './components/pages/discover-more/Community';
-import Contributing from './components/pages/discover-more/Contributing';
-import Showcase from './components/pages/discover-more/Showcase';
-import RelatedProjects from './components/pages/discover-more/RelatedProjects';
+import Community from './components/pages/page-types/Community';
+import MarkdownPage from './components/pages/page-types/MarkdownPage';
+import Showcase from './components/pages/page-types/Showcase';
+import RelatedProjects from './components/pages/page-types/RelatedProjects';
 
 /**
  * Routes: https://github.com/rackt/react-router/blob/master/docs/api/components/Route.md
@@ -51,10 +51,10 @@ const AppRoutes = (
       <Route path="themes" component={Themes} />
       <Route path="inline-styles" component={InlineStyles} />
     </Route>
-    <Redirect from="discover-more" to="/discover-more/community" />
-    <Route path="discover-more">
+    <Redirect from="page-types" to="/page-types/community" />
+    <Route path="page-types">
       <Route path="community" component={Community} />
-      <Route path="contributing" component={Contributing} />
+      <Route path="markdown" component={MarkdownPage} />
       <Route path="showcase" component={Showcase} />
       <Route path="related-projects" component={RelatedProjects} />
     </Route>
