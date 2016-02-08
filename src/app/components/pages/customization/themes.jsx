@@ -4,6 +4,8 @@ import MarkdownElement from '../../MarkdownElement';
 import ComponentDoc from '../../component-doc';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 
+import CustomBaseTheme from '../../../customBaseTheme';
+
 const {
   Checkbox,
   ClearFix,
@@ -46,7 +48,7 @@ const ThemesPage = React.createClass({
 
   getInitialState() {
     return {
-      valueTabs: this.context.muiTheme.name || 'light',
+      valueTabs: this.context.muiTheme.name || 'custom',
       dialogOpen: false,
       snackbarOpen: false,
       leftNavOpen: false,
@@ -298,7 +300,9 @@ const ThemesPage = React.createClass({
   handleChangeTabs(valueTabs) {
     let newMuiTheme = null;
 
-    if (valueTabs === 'light') {
+    if (valueTabs === 'custom') {
+      newMuiTheme = getMuiTheme(CustomBaseTheme);
+    } else if (valueTabs === 'light') {
       newMuiTheme = getMuiTheme();
     } else {
       newMuiTheme = getMuiTheme(DarkRawTheme);
@@ -321,11 +325,15 @@ const ThemesPage = React.createClass({
           onChange={this.handleChangeTabs}
         >
           <Tab
-            label="Light Theme (Default)"
+              label="Custom"
+              value="custom"
+          />
+          <Tab
+            label="MUI Light Theme"
             value="light"
           />
           <Tab
-            label="Dark Theme"
+            label="MUI Dark Theme"
             value="dark"
           />
         </Tabs>
