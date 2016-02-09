@@ -47,6 +47,9 @@ const AppLeftNav = React.createClass({
 
   getStyles() {
     return {
+      subheader: {
+        color: Typography.textFullWhite,
+      },
       logo: {
         cursor: 'pointer',
         fontSize: 24,
@@ -106,6 +109,7 @@ const AppLeftNav = React.createClass({
         <Divider />
         <SelectableList
           subheader="Resources"
+          subheaderStyle={styles.subheader}
           valueLink={{value: '', requestChange: this.handleRequestChangeLink}}
         >
           <ListItem primaryText="GitHub" value="https://github.com/callemall/material-ui" />
