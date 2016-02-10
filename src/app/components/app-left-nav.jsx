@@ -27,6 +27,7 @@ const AppLeftNav = React.createClass({
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
+    globalNav: React.PropTypes.object,
     router: React.PropTypes.func,
   },
 
@@ -48,7 +49,7 @@ const AppLeftNav = React.createClass({
   getStyles() {
     return {
       subheader: {
-        color: Typography.textFullWhite,
+        color: this.context.muiTheme.rawTheme.palette.accent3Color,
       },
       logo: {
         cursor: 'pointer',
@@ -64,6 +65,7 @@ const AppLeftNav = React.createClass({
   },
 
   render() {
+    console.log(this.context.globalNav)
     const {
       location,
       docked,
@@ -101,6 +103,7 @@ const AppLeftNav = React.createClass({
             primaryText="Page Types"
             primaryTogglesNestedList={true}
             nestedItems={[
+              <ListItem primaryText="Highcharts" value="/page-types/highcharts" />,
               <ListItem primaryText="Markdown" value="/page-types/markdown" />,
               <ListItem primaryText="Showcase" value="/page-types/showcase" />,
             ]}
@@ -112,7 +115,8 @@ const AppLeftNav = React.createClass({
           subheaderStyle={styles.subheader}
           valueLink={{value: '', requestChange: this.handleRequestChangeLink}}
         >
-          <ListItem primaryText="GitHub" value="https://github.com/callemall/material-ui" />
+          <ListItem primaryText="GitHub" value="https://github.com/lmaccherone/material-ui-template" />
+          <ListItem primaryText="Material-UI" value="https://github.com/callemall/material-ui" />
           <ListItem primaryText="React" value="http://facebook.github.io/react" />
           <ListItem
             primaryText="Material Design"

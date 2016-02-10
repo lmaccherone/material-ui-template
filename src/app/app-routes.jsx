@@ -13,6 +13,7 @@ import Colors from './components/pages/customization/colors';
 import Themes from './components/pages/customization/themes';
 import InlineStyles from './components/pages/customization/inline-styles';
 
+import HighchartsPage from './components/pages/page-types/highcharts';
 import MarkdownPage from './components/pages/page-types/MarkdownPage';
 import Showcase from './components/pages/page-types/Showcase';
 
@@ -37,6 +38,7 @@ const AppRoutes = (
     </Route>
     <Redirect from="page-types" to="/page-types/markdown" />
     <Route path="page-types">
+      <Route path="highcharts" component={HighchartsPage} />
       <Route path="markdown" component={MarkdownPage} />
       <Route path="showcase" component={Showcase} />
     </Route>

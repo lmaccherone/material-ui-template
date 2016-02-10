@@ -130,6 +130,9 @@ const ThemesPage = React.createClass({
       inlineCode: {
         backgroundColor: '#F8F8F8',
       },
+      dialogBodyStyle: {
+        color: this.context.muiTheme.rawTheme.palette.borderColor
+      }
     };
 
     if (this.isDeviceSize(StyleResizable.statics.Sizes.MEDIUM)) {
@@ -258,6 +261,7 @@ const ThemesPage = React.createClass({
                 />,
               ]}
               onRequestClose={this.handleRequestCloseDialog}
+              bodyStyle={styles.dialogBodyStyle}
             >
               The actions in this window are created from the json that&#39;s passed in.
             </Dialog>

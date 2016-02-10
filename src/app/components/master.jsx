@@ -20,7 +20,7 @@ import CustomBaseTheme from '../customBaseTheme';
 const githubButton = (
   <IconButton
     iconClassName="muidocs-icon-custom-github"
-    href="https://github.com/callemall/material-ui"
+    href="https://github.com/lmaccherone/material-ui-template"
     linkButton={true}
   />
 );
@@ -35,6 +35,7 @@ const Master = React.createClass({
 
   childContextTypes: {
     muiTheme: React.PropTypes.object,
+    globalNav: React.PropTypes.object,
   },
 
   mixins: [
@@ -45,6 +46,7 @@ const Master = React.createClass({
   getInitialState() {
     return {
       muiTheme: getMuiTheme(CustomBaseTheme),
+      globalNav: {a:1},
       leftNavOpen: false,
     };
   },
@@ -52,12 +54,14 @@ const Master = React.createClass({
   getChildContext() {
     return {
       muiTheme: this.state.muiTheme,
+      globalNav: this.state.globalNav,
     };
   },
 
   componentWillMount() {
     this.setState({
       muiTheme: this.state.muiTheme,
+      globalNav: this.state.globalNav,
     });
   },
 
@@ -65,6 +69,10 @@ const Master = React.createClass({
     const newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({
       muiTheme: newMuiTheme,
+    });
+    const newGlobalNav = nextContext.globalNav ? nextContext.globalNav : this.state.globalNav;
+    this.setState({
+      globalNav: newGlobalNav,
     });
   },
 
@@ -133,7 +141,7 @@ const Master = React.createClass({
     });
   },
 
-  handleChangeMuiTheme(muiTheme) {
+  handleChangeMuiTheme(muiTheme) {  // TODO: Confirm I don't need to do this same thing for globalNav
     this.setState({
       muiTheme: muiTheme,
     });
@@ -203,22 +211,15 @@ const Master = React.createClass({
         />
         <FullWidthSection style={styles.footer}>
           <p style={this.prepareStyles(styles.p)}>
-            {'Hand crafted with love by the engineers at '}
-            <a style={styles.a} href="http://call-em-all.com">
-              Call-Em-All
-            </a>
-            {' and our awesome '}
-            <a
-              style={this.prepareStyles(styles.a)}
-              href="https://github.com/callemall/material-ui/graphs/contributors"
-            >
-              contributors
+            {'Hand crafted with love by '}
+            <a style={styles.a} href="https://www.linkedin.com/in/larrymaccherone">
+              Larry Maccherone
             </a>.
           </p>
           <IconButton
             iconStyle={styles.iconButton}
             iconClassName="muidocs-icon-custom-github"
-            href="https://github.com/callemall/material-ui"
+            href="https://github.com/lmaccherone/material-ui-template"
             linkButton={true}
           />
         </FullWidthSection>
