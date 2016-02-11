@@ -26,7 +26,8 @@
     "react-highcharts": "^6.0.0",
     "rfc6902-json-diff": "^0.1.2",
     "superagent": "^1.7.2",
-    "zxcvbn": "^4.2.0"
+    "zxcvbn": "^4.2.0",
+    "lodash": "^3.10.1"
   },
   "peerDependencies": {
     "react": "^0.14.0",

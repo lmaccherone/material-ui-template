@@ -16,6 +16,7 @@ import AppLeftNav from './app-left-nav';
 import FullWidthSection from './full-width-section';
 
 import CustomBaseTheme from '../customBaseTheme';
+import appRoutes from '../app-routes';
 
 const githubButton = (
   <IconButton
@@ -35,7 +36,6 @@ const Master = React.createClass({
 
   childContextTypes: {
     muiTheme: React.PropTypes.object,
-    globalNav: React.PropTypes.object,
   },
 
   mixins: [
@@ -46,7 +46,6 @@ const Master = React.createClass({
   getInitialState() {
     return {
       muiTheme: getMuiTheme(CustomBaseTheme),
-      globalNav: {a:1},
       leftNavOpen: false,
     };
   },
@@ -54,14 +53,12 @@ const Master = React.createClass({
   getChildContext() {
     return {
       muiTheme: this.state.muiTheme,
-      globalNav: this.state.globalNav,
     };
   },
 
   componentWillMount() {
     this.setState({
       muiTheme: this.state.muiTheme,
-      globalNav: this.state.globalNav,
     });
   },
 
@@ -69,10 +66,6 @@ const Master = React.createClass({
     const newMuiTheme = nextContext.muiTheme ? nextContext.muiTheme : this.state.muiTheme;
     this.setState({
       muiTheme: newMuiTheme,
-    });
-    const newGlobalNav = nextContext.globalNav ? nextContext.globalNav : this.state.globalNav;
-    this.setState({
-      globalNav: newGlobalNav,
     });
   },
 
@@ -122,6 +115,14 @@ const Master = React.createClass({
     return styles;
   },
 
+  getSecondLevelLookup(rootRoute) {
+    let lookup = {};
+    for (var child of rootRoute.childRoutes) {
+      lookup[child.fullPath] = child.name;
+    }
+    return lookup;
+  },
+
   handleTouchTapLeftIconButton() {
     this.setState({
       leftNavOpen: !this.state.leftNavOpen,
@@ -141,7 +142,7 @@ const Master = React.createClass({
     });
   },
 
-  handleChangeMuiTheme(muiTheme) {  // TODO: Confirm I don't need to do this same thing for globalNav
+  handleChangeMuiTheme(muiTheme) {
     this.setState({
       muiTheme: muiTheme,
     });
@@ -159,10 +160,16 @@ const Master = React.createClass({
     } = this.state;
 
     const styles = this.getStyles();
-    const title =
-      history.isActive('/customization') ? 'Customization' :
-      history.isActive('/components') ? 'Components' :
-      history.isActive('/page-types') ? 'Page Types' : '';
+
+    let title = '';
+    let secondLevelLookup = this.getSecondLevelLookup(appRoutes);
+    for (let key in secondLevelLookup) {
+      let value = secondLevelLookup[key];
+      if (history.isActive(key)) {
+        title = value;
+        break;
+      }
+    }
 
     let docked = false;
     let showMenuIconButton = true;

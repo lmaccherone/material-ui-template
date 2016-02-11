@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {Router} from 'react-router';
-import AppRoutes from './app-routes.jsx';
+//import AppRoutes from './app-appRoutes.jsx';
+import appRoutes from './app-routes';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import createHistory from 'history/lib/createHashHistory';
 
@@ -23,7 +24,7 @@ ReactDOM.render(
   <Router
     history={createHistory({queryKey: false})}
     onUpdate={() => window.scrollTo(0, 0)}
-  >
-    {AppRoutes}
-  </Router>
-, document.getElementById('app'));
+    routes={appRoutes}
+  ></Router>,
+  document.getElementById('app')
+);
