@@ -10,12 +10,11 @@ const {StylePropable, StyleResizable} = Mixins;
 const HighchartsPage = React.createClass({
 
   propTypes: {
-    onChangeMuiTheme: React.PropTypes.func,  // TODO: Do I need to do this for globalNav?
+    onChangeMuiTheme: React.PropTypes.func,
   },
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
-    globalNav: React.PropTypes.object,
   },
 
   mixins: [StylePropable, StyleResizable],
@@ -61,7 +60,7 @@ const HighchartsPage = React.createClass({
 
   getStyles() {
     let styles = {
-      blankText: {
+      text: {
         fontSize: 12,
         color: this.context.muiTheme.rawTheme.palette.primary1Color
       }
@@ -69,7 +68,7 @@ const HighchartsPage = React.createClass({
 
     // example of a screen-size sensitive style
     if (this.isDeviceSize(StyleResizable.statics.Sizes.MEDIUM)) {  // active for >= MEDIUM
-      styles.blankText.fontSize = 20;
+      styles.text.fontSize = 20;
     }
 
     return styles;

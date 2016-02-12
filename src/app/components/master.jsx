@@ -115,14 +115,6 @@ const Master = React.createClass({
     return styles;
   },
 
-  getSecondLevelLookup(rootRoute) {
-    let lookup = {};
-    for (var child of rootRoute.childRoutes) {
-      lookup[child.fullPath] = child.name;
-    }
-    return lookup;
-  },
-
   handleTouchTapLeftIconButton() {
     this.setState({
       leftNavOpen: !this.state.leftNavOpen,
@@ -161,15 +153,7 @@ const Master = React.createClass({
 
     const styles = this.getStyles();
 
-    let title = '';
-    let secondLevelLookup = this.getSecondLevelLookup(appRoutes);
-    for (let key in secondLevelLookup) {
-      let value = secondLevelLookup[key];
-      if (history.isActive(key)) {
-        title = value;
-        break;
-      }
-    }
+    let title = this.props.routes[1].name || '';
 
     let docked = false;
     let showMenuIconButton = true;

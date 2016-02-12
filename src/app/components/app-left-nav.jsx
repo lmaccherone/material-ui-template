@@ -28,8 +28,6 @@ const AppLeftNav = React.createClass({
 
   contextTypes: {
     muiTheme: React.PropTypes.object,
-    globalNav: React.PropTypes.object,
-    router: React.PropTypes.func,
   },
 
   mixins: [

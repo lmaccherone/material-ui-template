@@ -4,7 +4,7 @@ import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import {Mixins} from 'material-ui';
 const {StylePropable, StyleResizable} = Mixins;
 
-const HighchartsPage = React.createClass({
+export default React.createClass({
 
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
@@ -24,26 +24,24 @@ const HighchartsPage = React.createClass({
   getStyles() {
     let styles = {
       text: {
-        fontSize: 12,
+        fontSize: 20,
         color: this.context.muiTheme.rawTheme.palette.primary1Color
       }
     };
-
-    // example of a screen-size sensitive style
-    if (this.isDeviceSize(StyleResizable.statics.Sizes.MEDIUM)) {  // active for >= MEDIUM
-      styles.text.fontSize = 20;
-    }
 
     return styles;
   },
 
   render() {
-    let styles = this.getStyles()
+    let styles = this.getStyles();
     return (
-      <p style={styles.text}>Blank page</p>
+      <div>
+        This is an example of using the same content component on two different routes but having them each get a different config.
+        <p style={styles.text}>
+          {JSON.stringify(this.props.route.config, null, 2)}
+        </p>
+      </div>
     )
   }
 
 });
-
-export default HighchartsPage;

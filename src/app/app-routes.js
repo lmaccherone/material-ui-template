@@ -11,6 +11,7 @@ import HighchartsPage from './components/pages/page-types/highcharts';
 import MarkdownPage from './components/pages/page-types/MarkdownPage';
 import Showcase from './components/pages/page-types/Showcase';
 import Blank from './components/pages/page-types/blank';
+import Config from './components/pages/page-types/config';
 
 let appRoutes = {
   path: '/', component: Master, menu: false, indexRoute: {component: Home}, childRoutes: [
@@ -24,7 +25,8 @@ let appRoutes = {
       {name: "Markdown", path: "markdown", component: MarkdownPage},
       {name: "Showcase", path: "showcase", component: Showcase},
       {name: "Blank", path: "blank", component: Blank},
-      {name: "Config", path: "config", component: Blank, config: {a:1}}
+      {name: "Config", path: "config", component: Config, config: {a:1}},
+      {name: "Config 2", path: "config2", component: Config, config: {b:2}},
     ]}
   ]
 };
