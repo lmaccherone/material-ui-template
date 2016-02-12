@@ -15,8 +15,8 @@ const config = {
     extensions: ['', '.js', '.jsx', '.md', '.txt'],
     alias: {
       //material-ui requires will be searched in src folder, not in node_modules
-      'material-ui/lib': path.resolve(__dirname, '../src'),
-      'material-ui': path.resolve(__dirname, '../src'),
+      //'material-ui/lib': path.resolve(__dirname, '../src'),
+      //'material-ui': path.resolve(__dirname, '../src'),
     },
     //Modules will be searched for in these directories
     modulesDirectories: [
@@ -105,6 +105,8 @@ const config = {
         test: /\.css$/,
         loader: 'style-loader!css-loader',
       },
+      { test: /\.cjsx$/, loaders: ['coffee', 'cjsx']},
+      { test: /\.coffee$/, loader: 'coffee' },
     ],
   },
   eslint: {

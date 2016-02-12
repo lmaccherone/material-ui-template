@@ -14,7 +14,7 @@ import Blank from './components/pages/page-types/blank';
 import Config from './components/pages/page-types/config';
 
 let appRoutes = {
-  path: '/', component: Master, menu: false, indexRoute: {component: Home}, childRoutes: [
+  path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
     {name: "Customization", path: "customization", redirectTo: "/customization/themes", childRoutes: [
       {name: "Colors", path: "colors", component: Colors},
       {name: "Themes", path: "themes", component: Themes},
@@ -27,7 +27,10 @@ let appRoutes = {
       {name: "Blank", path: "blank", component: Blank},
       {name: "Config", path: "config", component: Config, config: {a:1}},
       {name: "Config 2", path: "config2", component: Config, config: {b:2}},
-    ]}
+      {name: "3 Level Menu", path: "3-level", childRoutes: [
+        {name: "Blank", path: "blank", component: Blank},
+      ]},
+    ]},
   ]
 };
 
