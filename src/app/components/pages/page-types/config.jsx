@@ -36,10 +36,17 @@ export default React.createClass({
     let styles = this.getStyles();
     return (
       <div>
-        This is an example of using the same content component on two different routes but having them each get a different config.
-        <p style={styles.text}>
+        <p>This is an example of using the same content component on two different routes but having them each get a different config.</p>
+        <pre style={styles.text}>
           {JSON.stringify(this.props.route.config, null, 2)}
+        </pre>
+        <p>
+          You could also use the query string in the url to configure a particular page. But you can't put query strings
+          in the the app-routes. Add a query string to the url to see it change here:
         </p>
+        <pre style={styles.text}>
+          {JSON.stringify(this.props.location.query, null, 2)}
+        </pre>
       </div>
     )
   }
