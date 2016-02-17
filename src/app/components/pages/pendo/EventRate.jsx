@@ -32,21 +32,30 @@ export default React.createClass({
         },
         xAxis: {
           categories: categories,
-          crosshair: true
-        },
-        yAxis: {
-          min: 0,
+          crosshair: true,
           title: {
             text: 'Events per hour'
           }
         },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Count of subscriptions'
+          }
+        },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-          '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">Count: </td>' +
+          '<td style="padding:0"><b>{point.y} subscriptions</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
           useHTML: true
+        },
+        legend: {
+          enabled: false
+        },
+        credits: {
+          enabled: false
         },
         plotOptions: {
           column: {
@@ -71,18 +80,25 @@ export default React.createClass({
   },
 
   componentDidMount() {
-    console.log('before request');
     request('/api/subscription', (err, result) => {
-      console.log('after request', result);
-      let categories = [];
-      let data = [];
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('after request', result);
+        let categories = [];
+        let data = [];
 
+        for (var row of result.body.histogram) {
+          categories.push(row.label)
+          data.push(row.count)
+        }
 
-      let series = [{
-        name: 'Event Rate',
-        data: data
-      }];
-      this.setState(this.getChartConfig(categories, series))
+        let series = [{
+          name: 'Event Rate',
+          data: data
+        }];
+        this.setState(this.getChartConfig(categories, series))
+      }
     })
   },
 
