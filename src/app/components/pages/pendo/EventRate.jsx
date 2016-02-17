@@ -72,7 +72,7 @@ export default React.createClass({
 
   componentDidMount() {
     console.log('before request');
-    request('/subscription', (err, result) => {
+    request('/api/subscription', (err, result) => {
       console.log('after request', result);
       let categories = [];
       let data = [];

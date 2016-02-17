@@ -37,7 +37,7 @@ const config = {
     inline: true,
     port: 3000,
     proxy: {
-      '/subscription*': {target: 'http://localhost:10010', secure: false},
+      '/api/*': {target: 'http://localhost:10010', secure: false},
     }
   },
   devtool: 'source-map',
