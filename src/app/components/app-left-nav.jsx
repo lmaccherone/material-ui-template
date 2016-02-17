@@ -73,7 +73,9 @@ const AppLeftNav = React.createClass({
       props.primaryTogglesNestedList = true;
       let nestedItems = [];
       for (var child of currentNode.childRoutes) {
-        nestedItems.push(this.getListItems(child))
+        if (! child.hidden) {
+          nestedItems.push(this.getListItems(child))
+        }
       }
       if (currentNode.path == '/') {
         arrayToApply = [SelectableList, {valueLink: {value: '/', requestChange: onRequestChangeList}}];

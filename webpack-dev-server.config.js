@@ -36,6 +36,9 @@ const config = {
     hot: true,
     inline: true,
     port: 3000,
+    proxy: {
+      '/subscription*': {target: 'http://localhost:10010', secure: false},
+    }
   },
   devtool: 'source-map',
   //Output file config

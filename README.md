@@ -1,7 +1,7 @@
 # [Material-UI Template](https://github.com/lmaccherone/material-ui-template)
 
 This is a template site that you can use as a starting point for your Material-UI (MUI) project. I created it by starting
-with the MUI docs site, but there are significant differences:
+with the awesome MUI docs site so it has the same master layout as that, but there are significant differences:
 
 * **Stands alone**. The MUI docs site is a subfolder of the main MUI project and components in the docs site references 
   its parent. While it's not hard to tease this apart for someone who is familiar with webpack, npm, React, and MUI, 
@@ -16,7 +16,7 @@ with the MUI docs site, but there are significant differences:
   themes and it defaults to the custom one, so if you remove the Themes page, it will start up with your theme rather 
   than one of the prebuilt ones. Just modify customBaseTheme.js.
   
-* **Highcharts**. There is an example chart page that uses Highcharts.
+* **Highcharts**. There is an example chart page that uses Highcharts and react-highcharts.
 
 ## Requirements
 

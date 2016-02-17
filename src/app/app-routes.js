@@ -13,6 +13,8 @@ import Showcase from './components/pages/page-types/Showcase';
 import Blank from './components/pages/page-types/blank';
 import Config from './components/pages/page-types/config';
 
+import EventRate from './components/pages/pendo/EventRate';
+
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
     {name: "Customization", path: "customization", redirectTo: "/customization/themes", childRoutes: [
@@ -27,9 +29,13 @@ let appRoutes = {
       {name: "Blank", path: "blank", component: Blank},
       {name: "Config", path: "config", component: Config, config: {a:1}},
       {name: "Config 2", path: "config2", component: Config, config: {b:2}},
+      {name: "Hidden", hidden: true, path: "hidden", component: Blank},
       {name: "3 Level Menu", path: "3-level", childRoutes: [
         {name: "Blank", path: "blank", component: Blank},
       ]},
+    ]},
+    {name: "Pendo", path: "pendo", redirectTo: "/pendo/event-rate", childRoutes: [
+      {name: "Event Rate", path: "event-rate", component: EventRate},
     ]},
   ]
 };

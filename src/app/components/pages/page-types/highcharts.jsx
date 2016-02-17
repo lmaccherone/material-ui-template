@@ -7,7 +7,7 @@ import 'highcharts-more';
 import {Mixins} from 'material-ui';
 const {StylePropable, StyleResizable} = Mixins;
 
-const HighchartsPage = React.createClass({
+export default React.createClass({
 
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
@@ -82,5 +82,3 @@ const HighchartsPage = React.createClass({
   }
 
 });
-
-export default HighchartsPage;
