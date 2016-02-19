@@ -24,14 +24,41 @@ export default React.createClass({
     let label = event.target.textContent
     let touchedColumn
     if (_.isString(label)) {
+      let oldSortField = this.state.sort.field
+      let oldSortAscending = this.state.sort.ascending
       for (let column of this.props.columns) {
         if (label === column.label || label===column.tooltip + column.label) {
           touchedColumn = column
           break
         }
       }
-      console.log(touchedColumn)
+      if (touchedColumn) {
+        let newSortField, newSortAscending
+        if (touchedColumn.field === oldSortField) {
+          newSortField = oldSortField
+          newSortAscending = ! oldSortAscending
+        } else {
+          newSortField = touchedColumn.field
+          newSortAscending = true
+        }
+        this.setState({
+          sort: {
+            field: newSortField,
+            ascending: newSortAscending,
+          }
+        })
 
+
+      }
+    }
+  },
+
+  getInitialState() {
+    return {
+      sort: {
+        field: this.props.columns[0].field,
+        ascending: true,
+      }
     }
   },
 
@@ -48,9 +75,17 @@ export default React.createClass({
         <TableHeader enableSelectAll={true}>
           <TableRow key={0} style={{color: "#000000"}}>
             {columns.map((field, index) => {
+              let sortIcon
+              if (field.field === this.state.sort.field) {
+                if (this.state.sort.ascending) {
+                  sortIcon = "ascending"
+                } else {
+                  sortIcon = "descending"
+                }
+              }
               return (
                 <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={{fontSize: "16"}} tooltip={field.tooltip}>
-                  {field.label}
+                  {field.label}{sortIcon}
                 </TableHeaderColumn>
               )
             })}
