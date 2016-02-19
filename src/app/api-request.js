@@ -4,7 +4,7 @@ module.exports = function(endpoint, body, callback) {
   /*
   Assumes you want GET if body is missing, otherwise uses POST
   */
-  var method;
+  let method;
 
   if (!(callback)) {
     callback = body;

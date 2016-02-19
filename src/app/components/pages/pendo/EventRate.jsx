@@ -1,13 +1,16 @@
-import React from 'react';
-import getMuiTheme from '../../../../../node_modules/material-ui/lib/styles/getMuiTheme';
-import ReactHighcharts from '../../../../../node_modules/react-highcharts/bundle/highcharts';
-import 'highcharts-exporting';
-import 'highcharts-more';
+import React from 'react'
+import getMuiTheme from '../../../../../node_modules/material-ui/lib/styles/getMuiTheme'
+import ReactHighcharts from '../../../../../node_modules/react-highcharts/bundle/highcharts'
+import 'highcharts-exporting'
+import 'highcharts-more'
 
-import {Mixins} from 'material-ui';
-const {StylePropable, StyleResizable} = Mixins;
+import {Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter} from 'material-ui'
 
-import request from '../../../api-request';
+import {Mixins} from 'material-ui'
+const {StylePropable, StyleResizable} = Mixins
+
+import request from '../../../api-request'
+import AdvancedTable from '../../AdvancedTable'
 
 export default React.createClass({
 
@@ -21,7 +24,14 @@ export default React.createClass({
 
   mixins: [StylePropable, StyleResizable],
 
-  getChartConfig(categories, series) {
+  handleClick(event) {
+    let index = event.point.index
+    let newState = {}
+    newState.detail = this.state.histogram[index].subscriptions
+    this.setState(newState)
+  },
+
+  getChartConfig(categories, data) {
     return {
       config: {
         chart: {
@@ -32,7 +42,7 @@ export default React.createClass({
         },
         xAxis: {
           categories: categories,
-          crosshair: true,
+          crosshair: false,
           title: {
             text: 'Events per hour'
           }
@@ -45,7 +55,7 @@ export default React.createClass({
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">Count: </td>' +
+          pointFormat: '<tr><td style="color:{series.color}padding:0">Count: </td>' +
           '<td style="padding:0"><b>{point.y} subscriptions</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
@@ -65,18 +75,25 @@ export default React.createClass({
             shadow: false
           }
         },
-        series: series
+        series: [{
+          name: 'Count of subscriptions',
+          data: data,
+          color: this.context.muiTheme.rawTheme.palette.canvasColor,
+          events: {
+            click: this.handleClick
+          }
+        }]
       }
-    };
+    }
   },
 
   getInitialState() {
-    let categories = [];
-    let series = [{
-      name: 'Event Rate',
-      data: []
-    }]
-    return this.getChartConfig(categories, series);
+    let categories = []
+    let data = []
+    let state = this.getChartConfig(categories, data)
+    state.histogram = []
+    state.detail = []
+    return state
   },
 
   componentDidMount() {
@@ -84,20 +101,18 @@ export default React.createClass({
       if (err) {
         console.log(err)
       } else {
-        console.log('after request', result);
-        let categories = [];
-        let data = [];
-
-        for (var row of result.body.histogram) {
+        let histogram = result.body.histogram
+        let categories = []
+        let data = []
+        for (let row of histogram) {
           categories.push(row.label)
           data.push(row.count)
         }
 
-        let series = [{
-          name: 'Event Rate',
-          data: data
-        }];
-        this.setState(this.getChartConfig(categories, series))
+        let state = this.getChartConfig(categories, data)
+        state.histogram = histogram
+        state.detail = []
+        this.setState(state)
       }
     })
   },
@@ -108,21 +123,29 @@ export default React.createClass({
         fontSize: 12,
         color: this.context.muiTheme.rawTheme.palette.primary1Color
       }
-    };
+    }
 
     // example of a screen-size sensitive style
     if (this.isDeviceSize(StyleResizable.statics.Sizes.MEDIUM)) {  // active for >= MEDIUM
-      styles.text.fontSize = 20;
+      styles.text.fontSize = 20
     }
 
-    return styles;
+    return styles
   },
 
   render() {
-    let styles = this.getStyles();
+    let styles = this.getStyles()
+    let columns = [
+      {field: 'name', label: 'Account'},
+      {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
+    ]
     return (
+      <div>
         <ReactHighcharts config={this.state.config} ref="chart"></ReactHighcharts>
+        <AdvancedTable columns={columns} data={this.state.detail}></AdvancedTable>
+
+      </div>
     )
   }
 
-});
+})

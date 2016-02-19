@@ -72,7 +72,7 @@ const AppLeftNav = React.createClass({
     if (currentNode.childRoutes) {
       props.primaryTogglesNestedList = true;
       let nestedItems = [];
-      for (var child of currentNode.childRoutes) {
+      for (let child of currentNode.childRoutes) {
         if (! child.hidden) {
           nestedItems.push(this.getListItems(child))
         }

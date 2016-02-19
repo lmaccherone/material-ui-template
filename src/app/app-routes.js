@@ -51,7 +51,7 @@ let expandAppRoutes = function(currentNode, parentFullPath = null) {
     currentNode.fullPath = currentNode.path
   }
   if (currentNode.childRoutes) {
-    for (var child of currentNode.childRoutes) {
+    for (let child of currentNode.childRoutes) {
       expandAppRoutes(child, currentNode.fullPath)
     }
   }

@@ -1,10 +1,9 @@
-import React from 'react';
-import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
+import React from 'react'
 
-import {Mixins} from 'material-ui';
-const {StylePropable, StyleResizable} = Mixins;
+import {Mixins} from 'material-ui'
+const {StylePropable, StyleResizable} = Mixins
 
-const HighchartsPage = React.createClass({
+export default React.createClass({
 
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
@@ -18,7 +17,7 @@ const HighchartsPage = React.createClass({
 
   getInitialState() {
     return {
-    };
+    }
   },
 
   getStyles() {
@@ -27,14 +26,14 @@ const HighchartsPage = React.createClass({
         fontSize: 12,
         color: this.context.muiTheme.rawTheme.palette.primary1Color
       }
-    };
+    }
 
     // example of a screen-size sensitive style
     if (this.isDeviceSize(StyleResizable.statics.Sizes.MEDIUM)) {  // active for >= MEDIUM
-      styles.text.fontSize = 20;
+      styles.text.fontSize = 20
     }
 
-    return styles;
+    return styles
   },
 
   render() {
@@ -44,6 +43,5 @@ const HighchartsPage = React.createClass({
     )
   }
 
-});
+})
 
-export default HighchartsPage;
