@@ -2,16 +2,17 @@ import _ from 'lodash'
 
 import React from 'react'
 
-import {Mixins} from 'material-ui'
+import {Mixins, IconButton} from 'material-ui'
 const {StylePropable, StyleResizable} = Mixins
 import {Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter} from 'material-ui'
+import {NavigationArrowDropDown, NavigationArrowDropUp} from 'material-ui/lib/svg-icons'
 
 export default React.createClass({
 
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
     columns: React.PropTypes.array,
-    rows: React.PropTypes.array,
+    data: React.PropTypes.array,
   },
 
   contextTypes: {
@@ -37,9 +38,21 @@ export default React.createClass({
         if (touchedColumn.field === oldSortField) {
           newSortField = oldSortField
           newSortAscending = ! oldSortAscending
+          let sortedData = this.state.sortedData
+          sortedData.reverse()
+          this.setState({
+            sortedData
+          })
         } else {
           newSortField = touchedColumn.field
           newSortAscending = true
+          let sortedData = _.sortBy(this.state.sortedData, newSortField)
+          if (newSortAscending) {
+            sortedData.reverse()
+          }
+          this.setState({
+            sortedData
+          })
         }
         this.setState({
           sort: {
@@ -54,12 +67,25 @@ export default React.createClass({
   },
 
   getInitialState() {
-    return {
-      sort: {
-        field: this.props.columns[0].field,
-        ascending: true,
-      }
+    let sort = {
+      field: this.props.columns[0].field,
+      ascending: true,
     }
+    let sortedData = _.sortBy(this.props.data, sort.field)
+    if (sort.ascending) {
+      sortedData.reverse()
+    }
+    return {sort, sortedData}
+  },
+
+  componentWillReceiveProps(nextProps) {
+    let sortedData = _.sortBy(nextProps.data, this.state.sort.field)
+    if (this.state.sort.ascending) {
+      sortedData.reverse()
+    }
+    this.setState({
+      sortedData
+    })
   },
 
   render() {
@@ -78,14 +104,14 @@ export default React.createClass({
               let sortIcon
               if (field.field === this.state.sort.field) {
                 if (this.state.sort.ascending) {
-                  sortIcon = "ascending"
+                  sortIcon = <NavigationArrowDropDown viewBox="0 0 17 17" />
                 } else {
-                  sortIcon = "descending"
+                  sortIcon = <NavigationArrowDropUp viewBox="0 0 17 17" />
                 }
               }
               return (
                 <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={{fontSize: "16"}} tooltip={field.tooltip}>
-                  {field.label}{sortIcon}
+                  <div style={{height: "50px", lineHeight: "50px"}}>{field.label}{sortIcon}</div>
                 </TableHeaderColumn>
               )
             })}
@@ -97,7 +123,7 @@ export default React.createClass({
           displayRowCheckbox={true}
           style={{backgroundColor: '#FFFFFF', color: "#AAAAAA"}}
         >
-          {this.props.data.map( (detailRow, index) => {
+          {this.state.sortedData.map( (detailRow, index) => {
             return (
               <TableRow key={index} selected={detailRow.selected} style={{color: "#000000"}}>
                 {columns.map((field, index) => {
