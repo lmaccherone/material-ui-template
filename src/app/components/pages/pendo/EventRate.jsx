@@ -142,7 +142,7 @@ export default React.createClass({
     return (
       <div>
         <ReactHighcharts config={this.state.config} ref="chart"></ReactHighcharts>
-        <AdvancedTable columns={columns} data={this.state.detail}></AdvancedTable>
+        <AdvancedTable columns={columns} data={this.state.detail} initialSortField="eventRate" initialSortAscending={true}></AdvancedTable>
 
       </div>
     )

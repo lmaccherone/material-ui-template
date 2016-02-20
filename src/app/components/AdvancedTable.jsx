@@ -13,6 +13,8 @@ export default React.createClass({
     onChangeMuiTheme: React.PropTypes.func,
     columns: React.PropTypes.array,
     data: React.PropTypes.array,
+    initialSortField: React.PropTypes.string,
+    initialSortAscending: React.PropTypes.bool,
   },
 
   contextTypes: {
@@ -34,31 +36,26 @@ export default React.createClass({
         }
       }
       if (touchedColumn) {
-        let newSortField, newSortAscending
+        let newSortField, newSortAscending, sortedData
         if (touchedColumn.field === oldSortField) {
           newSortField = oldSortField
           newSortAscending = ! oldSortAscending
-          let sortedData = this.state.sortedData
+          sortedData = this.state.sortedData
           sortedData.reverse()
-          this.setState({
-            sortedData
-          })
         } else {
           newSortField = touchedColumn.field
           newSortAscending = true
-          let sortedData = _.sortBy(this.state.sortedData, newSortField)
+          sortedData = _.sortBy(this.state.sortedData, newSortField)
           if (newSortAscending) {
             sortedData.reverse()
           }
-          this.setState({
-            sortedData
-          })
         }
         this.setState({
           sort: {
             field: newSortField,
             ascending: newSortAscending,
-          }
+          },
+          sortedData
         })
 
 
@@ -68,8 +65,8 @@ export default React.createClass({
 
   getInitialState() {
     let sort = {
-      field: this.props.columns[0].field,
-      ascending: true,
+      field: this.props.initialSortField || this.props.columns[0].field,
+      ascending: this.props.initialSortAscending || false,
     }
     let sortedData = _.sortBy(this.props.data, sort.field)
     if (sort.ascending) {
