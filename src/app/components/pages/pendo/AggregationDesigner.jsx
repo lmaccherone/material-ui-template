@@ -30,6 +30,7 @@ export default React.createClass({
     return {
       mode: 'yaml',
       editorContents: '',
+      resultBody: {},
       resultStatus: '',
       resultError: '',
     }
@@ -58,17 +59,20 @@ export default React.createClass({
   },
 
   onChangeMode(event, valueSelected) {
-    let newContents
+    let newContents, newResult
     if (valueSelected == 'yaml' && this.state.mode == 'json') {
       newContents = yaml.safeDump(JSON.parse(this.state.editorContents))
+      newResult = yaml.safeDump(JSON.parse(this.state.resultBody))
     }
     if (valueSelected == 'json' && this.state.mode == 'yaml') {
       newContents = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
+      newResult = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
     }
     if (valueSelected != this.state.mode) {
       this.setState({
         mode: valueSelected,
-        editorContents: newContents
+        editorContents: newContents,
+        resultBody: newResult,
       })
     }
   },
