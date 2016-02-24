@@ -16,6 +16,8 @@ import request from '../../../api-request'
 
 export default React.createClass({
 
+  // Boilderplate and React lifecycle methods
+
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
   },
@@ -30,11 +32,17 @@ export default React.createClass({
     return {
       mode: 'yaml',
       editorContents: '',
-      resultBody: {},
+      resultBody: '',
       resultStatus: '',
       resultError: '',
     }
   },
+
+  componentDidMount() {
+    ReactDOM.findDOMNode(this.refs.editor).children[0].focus()
+  },
+
+  // Helpers
 
   getStyles() {
     return {
@@ -57,6 +65,8 @@ export default React.createClass({
 
     }
   },
+
+  // Event handlers
 
   onChangeMode(event, valueSelected) {
     let newContents, newResult
@@ -83,10 +93,6 @@ export default React.createClass({
     })
   },
 
-  componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.editor).children[0].focus()
-  },
-
   runAggregation() {
     let body
     if (this.state.mode == 'json') body = JSON.parse(this.state.editorContents)
@@ -110,6 +116,10 @@ export default React.createClass({
         })
       }
     })
+  },
+
+  onBlur(e) {
+    console.log(e)
   },
 
   render() {
@@ -145,6 +155,7 @@ export default React.createClass({
           showPrintMargin={false}
           editorProps={{$blockScrolling: true}}
           onChange={this.onChangeContents}
+          onBlur={this.onBlur}
           tabSize={2}/>
         <Toolbar style={styles.resultBar}>
           <ToolbarTitle text={"Result: " + this.state.resultStatus} />
