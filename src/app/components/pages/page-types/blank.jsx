@@ -5,6 +5,8 @@ const {StylePropable, StyleResizable} = Mixins
 
 export default React.createClass({
 
+  // Boilerplate and React lifecycle methods
+
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
   },
@@ -19,6 +21,8 @@ export default React.createClass({
     return {
     }
   },
+
+  // Helpers
 
   getStyles() {
     let styles = {
@@ -35,6 +39,10 @@ export default React.createClass({
 
     return styles
   },
+
+  // Event handlers
+
+  // None for this Blank page
 
   render() {
     let styles = this.getStyles()

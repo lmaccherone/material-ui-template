@@ -32,9 +32,11 @@ export default React.createClass({
     return {
       mode: 'yaml',
       editorContents: '',
-      resultBody: '',
+      name: 'Default',
+      resultBody: '{}',
       resultStatus: '',
       resultError: '',
+      saved: true,
     }
   },
 
@@ -76,20 +78,26 @@ export default React.createClass({
     }
     if (valueSelected == 'json' && this.state.mode == 'yaml') {
       newContents = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
-      newResult = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
+      newResult = JSON.stringify(yaml.safeLoad(this.state.resultBody), null, 2)
     }
     if (valueSelected != this.state.mode) {
       this.setState({
         mode: valueSelected,
         editorContents: newContents,
         resultBody: newResult,
+        saved: false,
+      })
+    } else {
+      this.setState({
+        saved: false,
       })
     }
   },
 
   onChangeContents(newValue) {
     this.setState({
-      editorContents: newValue
+      saved: false,
+      editorContents: newValue,
     })
   },
 
@@ -118,15 +126,33 @@ export default React.createClass({
     })
   },
 
-  onBlur(e) {
-    console.log(e)
+  saveAnalysisSpec() {
+    request('/api/save-analysis-spec', this.state, (err, result) => {
+      let saveResult
+      if (err) {
+        console.log(err)
+        this.setState({
+          saved: false,
+        })
+      } else {
+        this.setState({
+          saved: true,
+        })
+      }
+    })
+  },
+
+  onBlur() {
+    if (! this.state.saved) {
+      this.saveAnalysisSpec()
+    }
   },
 
   render() {
     let styles = this.getStyles()
     return (
       <Paper zDepth={2}>
-        <Toolbar>
+        <Toolbar style={styles.resultBar}>
           <RadioButtonGroup
             valueSelected={this.state.mode}
             name="shipSpeed"
@@ -143,7 +169,8 @@ export default React.createClass({
             />
           </RadioButtonGroup>
           <RaisedButton label="Run" secondary={true} style={styles.buttons} onTouchTap={this.runAggregation} />
-          <RaisedButton label="Save" secondary={true} style={styles.buttons} />
+          <RaisedButton label="Save as..." secondary={true} style={styles.buttons} />
+          <ToolbarTitle style={{float: 'right'}} text={"Saved: " + this.state.saved} />
         </Toolbar>
         <AceEditor
           ref="editor"
