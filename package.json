@@ -19,15 +19,19 @@
     "android:setup-port": "adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
+    "brace": "^0.7.0",
     "highcharts-exporting": "0.0.8",
     "highcharts-more": "0.0.8",
+    "install": "^0.4.4",
+    "js-yaml": "^3.5.3",
+    "lodash": "^3.10.1",
     "lumenize": "^1.0.3",
     "material-ui": "^0.14.4",
+    "react-ace": "^3.1.0",
     "react-highcharts": "^6.0.0",
     "rfc6902-json-diff": "^0.1.2",
     "superagent": "^1.7.2",
-    "zxcvbn": "^4.2.0",
-    "lodash": "^3.10.1"
+    "zxcvbn": "^4.2.0"
   },
   "peerDependencies": {
     "react": "^0.14.0",

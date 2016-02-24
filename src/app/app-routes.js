@@ -1,19 +1,20 @@
-import _ from 'lodash';
+import _ from 'lodash'
 
-import Master from './components/master';
-import Home from './components/pages/home';
+import Master from './components/master'
+import Home from './components/pages/home'
 
-import Colors from './components/pages/customization/colors';
-import Themes from './components/pages/customization/themes';
-import InlineStyles from './components/pages/customization/inline-styles';
+import Colors from './components/pages/customization/colors'
+import Themes from './components/pages/customization/themes'
+import InlineStyles from './components/pages/customization/inline-styles'
 
-import HighchartsPage from './components/pages/page-types/highcharts';
-import MarkdownPage from './components/pages/page-types/MarkdownPage';
-import Showcase from './components/pages/page-types/Showcase';
-import Blank from './components/pages/page-types/blank';
-import Config from './components/pages/page-types/config';
+import HighchartsPage from './components/pages/page-types/highcharts'
+import MarkdownPage from './components/pages/page-types/MarkdownPage'
+import Showcase from './components/pages/page-types/Showcase'
+import Blank from './components/pages/page-types/blank'
+import Config from './components/pages/page-types/config'
 
-import EventRate from './components/pages/pendo/EventRate';
+import EventRate from './components/pages/pendo/EventRate'
+import AggregationDesigner from './components/pages/pendo/AggregationDesigner'
 
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
@@ -36,16 +37,17 @@ let appRoutes = {
     ]},
     {name: "Pendo", path: "pendo", redirectTo: "/pendo/event-rate", childRoutes: [
       {name: "Event Rate", path: "event-rate", component: EventRate},
+      {name: "Aggregation Designer", path: "aggregation-designer", component: AggregationDesigner},
     ]},
   ]
-};
+}
 
 let expandAppRoutes = function(currentNode, parentFullPath = null) {
   if (parentFullPath) {
     if (_.endsWith(parentFullPath, '/')) {
-      currentNode.fullPath = parentFullPath + currentNode.path;
+      currentNode.fullPath = parentFullPath + currentNode.path
     } else {
-      currentNode.fullPath = parentFullPath + '/' + currentNode.path;
+      currentNode.fullPath = parentFullPath + '/' + currentNode.path
     }
   } else {
     currentNode.fullPath = currentNode.path
@@ -55,8 +57,8 @@ let expandAppRoutes = function(currentNode, parentFullPath = null) {
       expandAppRoutes(child, currentNode.fullPath)
     }
   }
-};
+}
 
-expandAppRoutes(appRoutes);
+expandAppRoutes(appRoutes)
 
-export default appRoutes;
+export default appRoutes
