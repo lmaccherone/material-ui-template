@@ -14,7 +14,8 @@ with the awesome MUI docs site so it has the same master layout as that, but the
 * **Custom theme in the project**. MUI is designed to be themable and comes with two nice themes, but it's not 
   immediately obvious how to  activate a custom theme in context for all components. The Themes page now has three 
   themes and it defaults to the custom one, so if you remove the Themes page, it will start up with your theme rather 
-  than one of the prebuilt ones. Just modify customBaseTheme.js.
+  than one of the prebuilt ones. Just modify customBaseTheme.js. I also modified many components and pages to use the 
+  theme. There were many places where inline settings didn't honor theme colors and spacing.
   
 * **Highcharts**. There is an example chart page that uses Highcharts and react-highcharts.
 

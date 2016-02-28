@@ -97,7 +97,7 @@ export default React.createClass({
   },
 
   componentDidMount() {
-    request('/api/subscription', (err, result) => {
+    this.serverRequest = request('/api/subscription', (err, result) => {
       if (err) {
         console.log(err)
       } else {
@@ -115,6 +115,12 @@ export default React.createClass({
         this.setState(state)
       }
     })
+  },
+
+  componentWillUnmount() {
+    if (this.serverRequest) {
+      this.serverRequest.abort()
+    }
   },
 
   getStyles() {
@@ -139,11 +145,19 @@ export default React.createClass({
       {field: 'name', label: 'Account'},
       {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
     ]
+    let rowActions = [
+      <div>some action</div>
+    ]
     return (
       <div>
         <ReactHighcharts config={this.state.config} ref="chart"></ReactHighcharts>
-        <AdvancedTable columns={columns} data={this.state.detail} initialSortField="eventRate" initialSortAscending={true}></AdvancedTable>
-
+        <AdvancedTable
+          columns={columns}
+          rowActions={rowHoverActions}
+          data={this.state.detail}
+          initialSortField="eventRate"
+          initialSortAscending={true}>
+        </AdvancedTable>
       </div>
     )
   }

@@ -18,6 +18,9 @@ module.exports = function(endpoint, body, callback) {
   }
 
   return superagent(method, endpoint).accept('json').send(body).end(function(err, response) {
+    if (err) {
+      console.error(err)
+    }
     if (callback) {  // Calling even if there is an error so calling page knows why
       return callback(err, response)
     }

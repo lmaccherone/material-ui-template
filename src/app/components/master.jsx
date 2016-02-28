@@ -1,7 +1,6 @@
 import React from 'react';
 import AppBar from 'material-ui/lib/app-bar';
 import IconButton from 'material-ui/lib/icon-button';
-import {Spacing} from 'material-ui/lib/styles';
 import {
   StylePropable,
   StyleResizable,
@@ -80,17 +79,19 @@ const Master = React.createClass({
         top: 0,
       },
       root: {
-        paddingTop: Spacing.desktopKeylineIncrement,
+        paddingTop: this.state.muiTheme.rawTheme.spacing.desktopKeylineIncrement,
         minHeight: 400,
       },
       content: {
-        margin: Spacing.desktopGutter,
+        //margin: Spacing.desktopGutter,
+        margin: 0,
       },
       contentWhenMedium: {
-        margin: `${Spacing.desktopGutter * 2}px ${Spacing.desktopGutter * 3}px`,
+        //margin: `${Spacing.desktopGutter * 2}px ${Spacing.desktopGutter * 3}px`,
+        margin: 0,
       },
       footer: {
-        backgroundColor: Colors.grey900,
+        backgroundColor: this.state.muiTheme.rawTheme.palette.accent2Color,
         textAlign: 'center',
       },
       a: {
@@ -166,8 +167,8 @@ const Master = React.createClass({
       styles.leftNav = {
         zIndex: styles.appBar.zIndex - 1,
       };
-      styles.root.paddingLeft = 256;
-      styles.footer.paddingLeft = 256;
+      styles.root.paddingLeft = this.state.muiTheme.leftNav.width
+      styles.footer.paddingLeft = this.state.muiTheme.leftNav.width
     }
 
     return (

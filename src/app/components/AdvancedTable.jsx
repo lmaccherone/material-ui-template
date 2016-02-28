@@ -15,6 +15,7 @@ export default React.createClass({
     data: React.PropTypes.array,
     initialSortField: React.PropTypes.string,
     initialSortAscending: React.PropTypes.bool,
+    rowActions: React.PropTypes.node,
   },
 
   contextTypes: {
@@ -91,12 +92,10 @@ export default React.createClass({
       <Table
         fixedHeader={true}
         fixedFooter={false}
-        selectable={true}
-        multiSelectable={true}
-        onRowSelection={this._onRowSelection}
+        selectable={false}
       >
-        <TableHeader enableSelectAll={true}>
-          <TableRow key={0} style={{color: "#000000"}}>
+        <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+          <TableRow key={0} style={{color: "#000000", backgroundColor: this.context.muiTheme.rawTheme.palette.accent2Color}}>
             {columns.map((field, index) => {
               let sortIcon
               if (field.field === this.state.sort.field) {
@@ -112,22 +111,29 @@ export default React.createClass({
                 </TableHeaderColumn>
               )
             })}
+            {if (this.props.)}
+            <TableHeaderColumn></TableHeaderColumn>
           </TableRow>
         </TableHeader>
         <TableBody
           showRowHover={false}
-          stripedRows={true}
-          displayRowCheckbox={true}
+          stripedRows={false}
+          displayRowCheckbox={false}
           style={{backgroundColor: '#FFFFFF', color: "#AAAAAA"}}
         >
           {this.state.sortedData.map( (detailRow, index) => {
             return (
-              <TableRow key={index} selected={detailRow.selected} style={{color: "#000000"}}>
+              <TableRow
+                key={index}
+                selected={detailRow.selected}
+                style={{color: "#000000"}} >
                 {columns.map((field, index) => {
                   return (
-                    <TableRowColumn key={field.field}>{detailRow[field.field]}</TableRowColumn>
+                    <TableRowColumn style={{height: "40px"}} selectable={false} key={field.field}>{detailRow[field.field]}</TableRowColumn>
                   )
                 })}
+
+                <TableRowColumn>hello</TableRowColumn>
               </TableRow>
             )
           })}
