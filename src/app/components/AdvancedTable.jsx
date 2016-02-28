@@ -111,8 +111,7 @@ export default React.createClass({
                 </TableHeaderColumn>
               )
             })}
-            {if (this.props.)}
-            <TableHeaderColumn></TableHeaderColumn>
+            <TableHeaderColumn style={{width: "30px"}}></TableHeaderColumn>
           </TableRow>
         </TableHeader>
         <TableBody
@@ -133,7 +132,7 @@ export default React.createClass({
                   )
                 })}
 
-                <TableRowColumn>hello</TableRowColumn>
+                <TableRowColumn style={{width: "30px"}}>hello</TableRowColumn>
               </TableRow>
             )
           })}
