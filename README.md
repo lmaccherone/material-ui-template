@@ -19,6 +19,8 @@ with the awesome MUI docs site so it has the same master layout as that, but the
   
 * **Highcharts**. There is an example chart page that uses Highcharts and react-highcharts.
 
+* **Advanced Table**. Included is a component that renders a table where you can click on the columns to accomplish sorting.
+
 ## Requirements
 
 - [Node](https://nodejs.org) 4.0 or newer
