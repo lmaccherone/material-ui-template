@@ -98,19 +98,22 @@ export default React.createClass({
         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
           <TableRow key={0} style={{color: "#000000", backgroundColor: this.context.muiTheme.rawTheme.palette.accent2Color}}>
             {columns.map((field, index) => {
-              let sortIcon
-              if (field.field === this.state.sort.field) {
-                if (this.state.sort.ascending) {
-                  sortIcon = <NavigationArrowDropDown viewBox="0 0 17 17" />
-                } else {
-                  sortIcon = <NavigationArrowDropUp viewBox="0 0 17 17" />
+              if (! field.hidden) {
+                let sortIcon
+                if (field.field === this.state.sort.field) {
+                  if (this.state.sort.ascending) {
+                    sortIcon = <NavigationArrowDropDown viewBox="0 0 17 17"/>
+                  } else {
+                    sortIcon = <NavigationArrowDropUp viewBox="0 0 17 17"/>
+                  }
                 }
+                return (
+                  <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={{fontSize: "16"}}
+                                     tooltip={field.tooltip}>
+                    <div style={{height: "50px", lineHeight: "50px"}}>{field.label}{sortIcon}</div>
+                  </TableHeaderColumn>
+                )
               }
-              return (
-                <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={{fontSize: "16"}} tooltip={field.tooltip}>
-                  <div style={{height: "50px", lineHeight: "50px"}}>{field.label}{sortIcon}</div>
-                </TableHeaderColumn>
-              )
             })}
             <TableHeaderColumn style={{width: this.props.rowToolbarWidth}}></TableHeaderColumn>
           </TableRow>
@@ -128,9 +131,12 @@ export default React.createClass({
                 selected={detailRow.selected}
                 style={{color: "#000000"}} >
                 {columns.map((field, index) => {
-                  return (
-                    <TableRowColumn style={{height: "40px"}} selectable={false} key={field.field}>{detailRow[field.field]}</TableRowColumn>
-                  )
+                  if (! field.hidden) {
+                    return (
+                      <TableRowColumn style={{height: "40px"}} selectable={false}
+                                      key={field.field}>{detailRow[field.field]}</TableRowColumn>
+                    )
+                  }
                 })}
                 <TableRowColumn key="rowActions" style={{width: this.props.rowToolbarWidth}}>
                   {React.createElement(this.props.RowToolbarClass, {value: detailRow[this.props.valueField]})}

@@ -142,18 +142,14 @@ export default React.createClass({
   getRowToolbarClass() {
     let RowToolbarClass = React.createClass({
       handler(event) {
-        console.log(this.props.value)
-        window.open('http://hp.com', '_blank')  // TODO: replace with a link containing this.props.value
+        console.log('This is not yet implemented, but it shows that I can pass a value into it with ' + this.props.value)
+        //window.open('http://hp.com', '_blank')  // TODO: replace with a link containing this.props.value
       },
       render() {
         return (
           <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
             <ToolbarGroup>
-              <IconButton
-                style={{width: 50, marginRight: 10}}
-                tooltip="Launch"
-                tooltipPosition="top-center"
-                onTouchTap={this.handler}>
+              <IconButton style={{width: 50, marginRight: 10}} onTouchTap={this.handler}>
                 <ActionLaunch color="#000000" style={{margin: 10, height: 20}}/>
               </IconButton>
             </ToolbarGroup>
@@ -167,7 +163,7 @@ export default React.createClass({
   render()  {
     let styles = this.getStyles()
     let columns = [
-      {field: 'name', label: 'Account'},
+      {field: 'name', label: 'Account'},  // use `hidden: true` to define hidden fields that can still be identified with valueField
       {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
     ]
     let RowToolbarClass = this.getRowToolbarClass()
