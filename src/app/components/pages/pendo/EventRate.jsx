@@ -1,11 +1,11 @@
 import React from 'react'
-import getMuiTheme from '../../../../../node_modules/material-ui/lib/styles/getMuiTheme'
+
 import ReactHighcharts from '../../../../../node_modules/react-highcharts/bundle/highcharts'
 import 'highcharts-exporting'
 import 'highcharts-more'
 
-import {Table, TableHeaderColumn, TableRow, TableHeader, TableRowColumn, TableBody, TableFooter} from 'material-ui'
-
+import {Toolbar, ToolbarGroup, IconButton} from 'material-ui'
+import {ActionLaunch} from 'material-ui/lib/svg-icons'
 import {Mixins} from 'material-ui'
 const {StylePropable, StyleResizable} = Mixins
 
@@ -97,7 +97,7 @@ export default React.createClass({
   },
 
   componentDidMount() {
-    this.serverRequest = request('/api/subscription', (err, result) => {
+    this.serverRequest = request('GET', '/api/subscription', (err, result) => {
       if (err) {
         console.log(err)
       } else {
@@ -139,21 +139,34 @@ export default React.createClass({
     return styles
   },
 
+  launchDetail(event, value) {
+    console.log(event, value)
+    window.open('http://hp.com', '_blank')
+  },
+
   render() {
     let styles = this.getStyles()
     let columns = [
       {field: 'name', label: 'Account'},
       {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
     ]
-    let rowActions = [
-      <div>some action</div>
-    ]
+    let rowToolbar = (
+      <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
+        <ToolbarGroup>
+          <IconButton tooltip="Launch" tooltipPosition="top-center" onTouchTap={this.launchDetail}>
+            <ActionLaunch color="#000000" style={{height: 20}} />
+          </IconButton>
+        </ToolbarGroup>
+      </Toolbar>
+    )
+
     return (
       <div>
         <ReactHighcharts config={this.state.config} ref="chart"></ReactHighcharts>
         <AdvancedTable
           columns={columns}
-          rowActions={rowActions}
+          rowToolbar={rowToolbar}
+          rowToolbarWidth={30}
           data={this.state.detail}
           initialSortField="eventRate"
           initialSortAscending={true}>

@@ -69,7 +69,7 @@ export default React.createClass({
 
   componentDidMount() {
     ReactDOM.findDOMNode(this.refs.editor).children[0].focus()
-    this.serverRequest = request(`/api/analysis`, (err, result) => {
+    this.serverRequest = request('GET', `/api/analysis`, (err, result) => {
       if (err) {
         console.log('Error retrieving list of analysis. Replace with some sort of flair or toast.')
       } else {
@@ -121,7 +121,7 @@ export default React.createClass({
 
   runAggregation() {
     let body = yaml.safeLoad(this.state.editorContents)
-    request('/api/aggregation', body, (err, result) => {
+    request('POST', '/api/aggregation', body, (err, result) => {
       if (err) {
         this.setState({
           aggregationResult: err.message,
@@ -142,7 +142,7 @@ export default React.createClass({
     })
   },
 
-  postAnalysis(newName) {
+  getSpecToPutOrPost(newName) {
     if (newName) {
       let newAnalysisNames = this.state.analysisNames.concat(newName)
       this.setState({
@@ -156,29 +156,43 @@ export default React.createClass({
       aggregationResult: this.state.aggregationResult,
       aggregtionResultError: this.state.aggregationResultError,
       aggregationResultStatus: this.state.aggregationResultStatus,
+      name: newName,
     }
     try {
       spec.editorContentsJSONString = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
     } catch (e) {
       spec.editorContentsJSONString = this.state.editorContents
     }
-    request(`/api/analysis/${newName}`, spec, (err, result) => {
-      if (err) {
-        console.log(err)  // TODO: Replace with flair or toast
-        this.setState({
-          saved: false,
-        })
-      } else {
-        this.setState({
-          saved: true,
-        })
-      }
-    })
+    return spec
+  },
+
+  putOrPostAnalysisCallback(err, result) {
+    if (err) {
+      console.log(err)  // TODO: Replace with flair or toast
+      this.setState({
+        saved: false,
+      })
+    } else {
+      this.setState({
+        saved: true,
+      })
+    }
+  },
+
+  postAnalysis(newName) {
+    let spec = this.getSpecToPutOrPost(newName)
+    request('POST', `/api/analysis`, spec, this.putOrPostAnalysisCallback)
+  },
+
+  putAnalysis(newName) {
+    let spec = this.getSpecToPutOrPost(newName)
+    newName = spec.name
+    request('PUT', `/api/analysis/${newName}`, this.putOrPostAnalysisCallback )
   },
 
   saveAnalysis() {
     if (! this.state.saved) {
-      this.postAnalysis()
+      this.putAnalysis()
     }
   },
 
@@ -251,7 +265,7 @@ export default React.createClass({
   },
 
   getAnalysis(name) {
-    request(`/api/analysis/${name}`, (err, result) => {
+    request('GET', `/api/analysis/${name}`, (err, result) => {
       if (err) {
         console.log(err)  // TODO: Replace with flair or toast
       } else {
@@ -338,7 +352,7 @@ export default React.createClass({
     }
     return (
       <Paper zDepth={5}>
-        <Toolbar>
+        <Toolbar noGutter={true}>
           <IconButton firstChild={true} style={{marginTop: 3, marginLeft: 0, width: 40, float: 'left'}} tooltip="Run" tooltipPosition="top-center" onTouchTap={this.runAggregation}>
             <ActionLaunch />
           </IconButton>
@@ -362,7 +376,7 @@ export default React.createClass({
             <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 0, width: 40, float: 'left'}} tooltip="Duplicate as..." tooltipPosition="top-center" onTouchTap={this.duplicateDialogOpen}>
               <ContentAddCircle />
             </IconButton>
-            <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 0}} tooltip={savedTooltip} tooltipPosition="top-center" onTouchTap={this.saveAnalysis}>
+            <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 20}} tooltip={savedTooltip} tooltipPosition="top-center" onTouchTap={this.saveAnalysis}>
               <ContentSave color={savedColor} />
             </IconButton>
           </ToolbarGroup>

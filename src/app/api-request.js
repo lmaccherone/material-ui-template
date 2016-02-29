@@ -1,21 +1,15 @@
 import superagent from 'superagent/lib/client'
 
-module.exports = function(endpoint, body, callback) {
+module.exports = function(method, endpoint, body, callback) {
   /*
   Assumes you want GET if body is missing, otherwise uses POST
   */
-  let method
-
   if (!(callback)) {
     callback = body
     body = null
   }
 
-  if (body) {
-    method = 'POST'
-  } else {
-    method = 'GET'
-  }
+  method = method.toUpperCase()
 
   return superagent(method, endpoint).accept('json').send(body).end(function(err, response) {
     if (err) {
