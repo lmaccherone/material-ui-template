@@ -17,6 +17,7 @@ export default React.createClass({
     initialSortAscending: React.PropTypes.bool,
     //RowToolbarClass: React.PropTypes.element,
     rowToolbarWidth: React.PropTypes.number,
+    height: React.PropTypes.string,
   },
 
   contextTypes: {
@@ -65,12 +66,34 @@ export default React.createClass({
     }
   },
 
+  transformData(originalData) {
+    let data
+    let firstRow = originalData[0]
+    if (_.isPlainObject(firstRow)) {
+      data = originalData
+    } else if (_.isArray(firstRow)) {
+      throw new Error('Arrays of arrays not yet supported by Advanced Table, but should be easy to upgrade')
+    } else {  // Assume that it's a single column array
+      if (this.props.columns.length > 1) {
+        throw new Error('Number of columns does not match data')
+      }
+      data = []
+      for (let row of originalData) {
+        let o = {}
+        o[this.props.columns[0].field] = row
+        data.push(o)
+      }
+    }
+    return data
+  },
+
   getInitialState() {
+    let data = this.transformData(this.props.data)
     let sort = {
       field: this.props.initialSortField || this.props.columns[0].field,
       ascending: this.props.initialSortAscending || false,
     }
-    let sortedData = _.sortBy(this.props.data, sort.field)
+    let sortedData = _.sortBy(data, sort.field)
     if (sort.ascending) {
       sortedData.reverse()
     }
@@ -78,7 +101,8 @@ export default React.createClass({
   },
 
   componentWillReceiveProps(nextProps) {
-    let sortedData = _.sortBy(nextProps.data, this.state.sort.field)
+    let data = this.transformData(nextProps.data)
+    let sortedData = _.sortBy(data, this.state.sort.field)
     if (this.state.sort.ascending) {
       sortedData.reverse()
     }
@@ -94,6 +118,8 @@ export default React.createClass({
         fixedHeader={true}
         fixedFooter={false}
         selectable={false}
+        height={this.props.height}
+        style={this.props.style}
       >
         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
           <TableRow key={0} style={{color: "#000000", backgroundColor: this.context.muiTheme.rawTheme.palette.accent2Color}}>
@@ -139,7 +165,7 @@ export default React.createClass({
                   }
                 })}
                 <TableRowColumn key="rowActions" style={{width: this.props.rowToolbarWidth}}>
-                  {React.createElement(this.props.RowToolbarClass, {value: detailRow[this.props.valueField]})}
+                  {React.createElement(this.props.RowToolbarClass, {parent: this.props.parent, value: detailRow[this.props.valueField]})}
                 </TableRowColumn>
               </TableRow>
             )

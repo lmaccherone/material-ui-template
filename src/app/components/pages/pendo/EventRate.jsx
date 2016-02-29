@@ -162,7 +162,7 @@ export default React.createClass({
 
   render()  {
     let styles = this.getStyles()
-    let columns = [
+    const columns = [
       {field: 'name', label: 'Account'},  // use `hidden: true` to define hidden fields that can still be identified with valueField
       {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
     ]

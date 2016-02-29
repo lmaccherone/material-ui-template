@@ -13,7 +13,7 @@ import {
   Dialog,
   TextField,
 } from 'material-ui'
-import {ActionLaunch, ContentSave, ContentAddCircle} from 'material-ui/lib/svg-icons'
+import {ActionLaunch, ActionDelete, ContentSave, ContentAddCircle} from 'material-ui/lib/svg-icons'
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
 
@@ -27,6 +27,7 @@ import yaml from 'js-yaml'
 import _ from 'lodash'
 
 import request from '../../../api-request'
+import AdvancedTable from '../../AdvancedTable'
 
 export default React.createClass({
 
@@ -55,7 +56,7 @@ export default React.createClass({
       duplicateButtonDisabled: true,
       duplicateDialogOpen: false,
       duplicateErrorText: '',
-      manageAnalysisDialogOpen: false
+      manageDialogOpen: false,
     }
   },
 
@@ -65,6 +66,14 @@ export default React.createClass({
 
   duplicateDialogClose() {
     this.setState({duplicateDialogOpen: false})
+  },
+
+  manageDialogOpen() {
+    this.setState({manageDialogOpen: true})
+  },
+
+  manageDialogClose() {
+    this.setState({manageDialogOpen: false})
   },
 
   componentDidMount() {
@@ -278,6 +287,18 @@ export default React.createClass({
     })
   },
 
+  deleteAnalysis(name) {
+    request('DELETE', `/api/analysis/${name}`, (err, result) => {
+      if (err) {
+        console.log(err)  // TODO: Replace with flair or toast
+      } else {
+        let analysisNames = this.state.analysisNames
+        _.pull(analysisNames, name)
+        this.setState({analysisNames})
+      }
+    })
+  },
+
   duplicateAnalysis() {
     let newName = _.trim(this.refs.newName.getValue())
     this.postAnalysis(newName)
@@ -289,9 +310,8 @@ export default React.createClass({
 
   onDropDownChange(e, index, value) {
     if (value === "+++MANAGE_ANALYSIS+++") {
-      console.log('got here')
       this.setState({
-        manageAnalysisDialogOpen: true
+        manageDialogOpen: true
       })
     } else {
       this.getAnalysis(value)
@@ -317,8 +337,28 @@ export default React.createClass({
     })
   },
 
+  getRowToolbarClass() {
+    let RowToolbarClass = React.createClass({
+      handler(event) {
+        this.props.parent.deleteAnalysis(this.props.value)
+      },
+      render() {
+        return (
+          <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
+            <ToolbarGroup>
+              <IconButton style={{width: 50, marginRight: 10}} onTouchTap={this.handler}>
+                <ActionDelete color="#000000" style={{margin: 10, height: 20}}/>
+              </IconButton>
+            </ToolbarGroup>
+          </Toolbar>
+        )
+      }
+    })
+    return RowToolbarClass
+  },
+
   render() {
-    const dialogActions = [
+    const duplicateDialogActions = [
       <FlatButton
         label="Cancel"
         secondary={true}
@@ -331,6 +371,14 @@ export default React.createClass({
         keyboardFocused={false}
         disabled={this.state.duplicateButtonDisabled}
         onTouchTap={this.duplicateAnalysis}
+      />,
+    ]
+    const manageDialogActions = [
+      <FlatButton
+        label="OK"
+        primary={true}
+        onTouchTap={this.manageDialogClose}
+        style={{marginRight: 5}}
       />,
     ]
     let styles = this.getStyles()
@@ -350,6 +398,10 @@ export default React.createClass({
       defaultToggled = true
       mode = 'yaml'
     }
+    const columns = [
+      {field: 'name', label: 'Analysis'},  // use `hidden: true` to define hidden fields that can still be identified with valueField
+    ]
+    let RowToolbarClass = this.getRowToolbarClass()
     return (
       <Paper zDepth={5}>
         <Toolbar noGutter={true}>
@@ -409,7 +461,7 @@ export default React.createClass({
           tabSize={2} />
         <Dialog
           title="Duplicate analysis"
-          actions={dialogActions}
+          actions={duplicateDialogActions}
           modal={false}
           open={this.state.duplicateDialogOpen}
           onRequestClose={this.duplicateDialogClose}
@@ -423,6 +475,27 @@ export default React.createClass({
             errorText={this.state.duplicateErrorText}
             ref="newName"
           />
+        </Dialog>
+        <Dialog
+          title="Manage analysis"
+          actions={manageDialogActions}
+          modal={false}
+          open={this.state.manageDialogOpen}
+          onRequestClose={this.manageDialogClose}
+          contentStyle={{width: 500}}
+        >
+          <AdvancedTable
+            columns={columns}
+            RowToolbarClass={RowToolbarClass}
+            rowToolbarWidth={50}
+            valueField="name"
+            data={this.state.analysisNames}
+            initialSortField="name"
+            initialSortAscending={false}
+            height="250px"
+            parent={this}
+            >
+          </AdvancedTable>
         </Dialog>
       </Paper>
     )
