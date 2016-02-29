@@ -15,7 +15,7 @@ export default React.createClass({
     data: React.PropTypes.array,
     initialSortField: React.PropTypes.string,
     initialSortAscending: React.PropTypes.bool,
-    rowToolbar: React.PropTypes.node,
+    //RowToolbarClass: React.PropTypes.element,
     rowToolbarWidth: React.PropTypes.number,
   },
 
@@ -132,7 +132,9 @@ export default React.createClass({
                     <TableRowColumn style={{height: "40px"}} selectable={false} key={field.field}>{detailRow[field.field]}</TableRowColumn>
                   )
                 })}
-                <TableRowColumn key="rowActions" style={{width: this.props.rowToolbarWidth}}>{this.props.rowToolbar}</TableRowColumn>
+                <TableRowColumn key="rowActions" style={{width: this.props.rowToolbarWidth}}>
+                  {React.createElement(this.props.RowToolbarClass, {value: detailRow[this.props.valueField]})}
+                </TableRowColumn>
               </TableRow>
             )
           })}

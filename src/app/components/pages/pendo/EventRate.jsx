@@ -139,34 +139,46 @@ export default React.createClass({
     return styles
   },
 
-  launchDetail(event, value) {
-    console.log(event, value)
-    window.open('http://hp.com', '_blank')
+  getRowToolbarClass() {
+    let RowToolbarClass = React.createClass({
+      handler(event) {
+        console.log(this.props.value)
+        window.open('http://hp.com', '_blank')  // TODO: replace with a link containing this.props.value
+      },
+      render() {
+        return (
+          <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
+            <ToolbarGroup>
+              <IconButton
+                style={{width: 50, marginRight: 10}}
+                tooltip="Launch"
+                tooltipPosition="top-center"
+                onTouchTap={this.handler}>
+                <ActionLaunch color="#000000" style={{margin: 10, height: 20}}/>
+              </IconButton>
+            </ToolbarGroup>
+          </Toolbar>
+        )
+      }
+    })
+    return RowToolbarClass
   },
 
-  render() {
+  render()  {
     let styles = this.getStyles()
     let columns = [
       {field: 'name', label: 'Account'},
       {field: 'eventRate', label: 'Event Rate', tooltip: 'Events per hour'},
     ]
-    let rowToolbar = (
-      <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
-        <ToolbarGroup>
-          <IconButton tooltip="Launch" tooltipPosition="top-center" onTouchTap={this.launchDetail}>
-            <ActionLaunch color="#000000" style={{height: 20}} />
-          </IconButton>
-        </ToolbarGroup>
-      </Toolbar>
-    )
-
+    let RowToolbarClass = this.getRowToolbarClass()
     return (
       <div>
         <ReactHighcharts config={this.state.config} ref="chart"></ReactHighcharts>
         <AdvancedTable
           columns={columns}
-          rowToolbar={rowToolbar}
-          rowToolbarWidth={30}
+          RowToolbarClass={RowToolbarClass}
+          rowToolbarWidth={50}
+          valueField="name"
           data={this.state.detail}
           initialSortField="eventRate"
           initialSortAscending={true}>
