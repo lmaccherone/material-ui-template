@@ -12,8 +12,9 @@ import {
   IconButton,
   Dialog,
   TextField,
+  Tab, Tabs,
 } from 'material-ui'
-import {ActionLaunch, ActionDelete, ContentSave, ContentAddCircle} from 'material-ui/lib/svg-icons'
+import {ActionLaunch, ActionDelete, ActionSettings, ContentSave, ContentAddCircle} from 'material-ui/lib/svg-icons'
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
 
@@ -52,11 +53,16 @@ export default React.createClass({
       aggregationResult: '',
       aggregationResultStatus: '',
       aggregationResultError: '',
+      transformation: '',
+      transformationResult: '',
       saved: true,
       duplicateButtonDisabled: true,
       duplicateDialogOpen: false,
       duplicateErrorText: '',
       manageDialogOpen: false,
+      renameButtonDisabled: true,
+      renameDialogOpen: false,
+      nameToRename: '',
     }
   },
 
@@ -76,8 +82,19 @@ export default React.createClass({
     this.setState({manageDialogOpen: false})
   },
 
+  renameDialogOpen(nameToRename) {
+    this.setState({
+      nameToRename: nameToRename,
+      renameDialogOpen: true,
+    })
+  },
+
+  renameDialogClose() {
+    this.setState({renameDialogOpen: false})
+  },
+
   componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.editor).children[0].focus()
+    ReactDOM.findDOMNode(this.refs.aggregation).children[0].focus()
     this.serverRequest = request('GET', `/api/analysis`, (err, result) => {
       if (err) {
         console.log('Error retrieving list of analysis. Replace with some sort of flair or toast.')
@@ -125,7 +142,7 @@ export default React.createClass({
     } else if (this.state.mode === 'YAML') {
       newMode = 'JSON'
     }
-    this.reformat(undefined, undefined, undefined, undefined, newMode)
+    this.reformat(undefined, undefined, undefined, undefined, undefined, newMode)
   },
 
   runAggregation() {
@@ -152,25 +169,17 @@ export default React.createClass({
   },
 
   getSpecToPutOrPost(newName) {
-    if (newName) {
-      let newAnalysisNames = this.state.analysisNames.concat(newName)
-      this.setState({
-        name: newName,
-        analysisNames: newAnalysisNames,
-      })
-    } else {
+    if (! newName) {
       newName = this.state.name
     }
     let spec = {
+      name: newName,
+      editorContents: this.state.editorContents,
       aggregationResult: this.state.aggregationResult,
       aggregtionResultError: this.state.aggregationResultError,
       aggregationResultStatus: this.state.aggregationResultStatus,
-      name: newName,
-    }
-    try {
-      spec.editorContentsJSONString = JSON.stringify(yaml.safeLoad(this.state.editorContents), null, 2)
-    } catch (e) {
-      spec.editorContentsJSONString = this.state.editorContents
+      transformation: this.state.transformation,
+      transformationResult: this.state.transformationResult,
     }
     return spec
   },
@@ -182,8 +191,12 @@ export default React.createClass({
         saved: false,
       })
     } else {
+      let newName = result.body.name
+      let newAnalysisNames = _.sortBy(_.union(this.state.analysisNames, [newName]))
       this.setState({
         saved: true,
+        name: newName,
+        analysisNames: newAnalysisNames,
       })
     }
   },
@@ -193,10 +206,9 @@ export default React.createClass({
     request('POST', `/api/analysis`, spec, this.putOrPostAnalysisCallback)
   },
 
-  putAnalysis(newName) {
-    let spec = this.getSpecToPutOrPost(newName)
-    newName = spec.name
-    request('PUT', `/api/analysis/${newName}`, this.putOrPostAnalysisCallback )
+  putAnalysis() {
+    let spec = this.getSpecToPutOrPost(this.state.name)
+    request('PUT', `/api/analysis/${spec.name}`, spec, this.putOrPostAnalysisCallback )
   },
 
   saveAnalysis() {
@@ -206,18 +218,32 @@ export default React.createClass({
   },
 
   reformat(newEditorContents = this.state.editorContents,
+           newTransformation = this.state.transformation,
            newAggregationResult = this.state.aggregationResult,
            newAggregationResultStatus = this.state.aggregationResultStatus,
            newAggregationResultError = this.state.aggregationResultError,
            newMode = this.state.mode,
-           newName = this.state.name) {
-    let aggregationResultAsObject, editorContentsAsObject
+           newName = this.state.name,
+           newTransformationResult = this.state.transformationResult) {
+    let aggregationResultAsObject, editorContentsAsObject, transformationResultAsObject
     try {
       editorContentsAsObject = yaml.safeLoad(newEditorContents)
     } catch (e) {}
+    if (! editorContentsAsObject) {
+      editorContentsAsObject = {}
+    }
     try {
       aggregationResultAsObject = yaml.safeLoad(newAggregationResult)
     } catch (e) {}
+    if (! aggregationResultAsObject) {
+      aggregationResultAsObject = {}
+    }
+    try {
+      transformationResultAsObject = yaml.safeLoad(newTransformationResult)
+    } catch (e) {}
+    if (! transformationResultAsObject) {
+      transformationResultAsObject = {}
+    }
     if (newMode === 'YAML') {
       if (editorContentsAsObject) {
         newEditorContents = yaml.safeDump(editorContentsAsObject)
@@ -225,12 +251,18 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = yaml.safeDump(aggregationResultAsObject)
       }
+      if (aggregationResultAsObject) {
+        newTransformationResult = yaml.safeDump(transformationResultAsObject)
+      }
     } else {
       if (editorContentsAsObject) {
         newEditorContents = JSON.stringify(editorContentsAsObject, null, 2)
       }
       if (aggregationResultAsObject) {
         newAggregationResult = JSON.stringify(aggregationResultAsObject, null, 2)
+      }
+      if (aggregationResultAsObject) {
+        newTransformationResult = JSON.stringify(transformationResultAsObject, null, 2)
       }
     }
     this.setState({
@@ -241,6 +273,8 @@ export default React.createClass({
       aggregationResultError: newAggregationResultError,
       mode: newMode,
       name: newName,
+      transformation: newTransformation,
+      transformationResult: newTransformationResult,
     })
   },
 
@@ -273,13 +307,26 @@ export default React.createClass({
     this.pastePending = true
   },
 
+  onChangeTransformation(newValue) {
+    this.setState({
+      transformation: newValue,
+      saved: false,
+    })
+  },
+
+  onPasteTransformation() {
+
+  },
+
   getAnalysis(name) {
     request('GET', `/api/analysis/${name}`, (err, result) => {
       if (err) {
         console.log(err)  // TODO: Replace with flair or toast
       } else {
         let body = JSON.parse(result.body)
-        this.reformat(body.editorContentsJSONString, body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name)
+        this.reformat(body.editorContents, body.transformation,
+          body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name,
+          body.transformationResult)
         this.setState({
           saved: true
         })
@@ -294,7 +341,16 @@ export default React.createClass({
       } else {
         let analysisNames = this.state.analysisNames
         _.pull(analysisNames, name)
-        this.setState({analysisNames})
+        if (_.contains(analysisNames, this.state.name)) {
+          this.setState({analysisNames})
+        } else {
+          this.setState({
+            analysisNames,
+            name: '',
+            aggregationResult: '',
+            editorContents: '',
+          })
+        }
       }
     })
   },
@@ -308,6 +364,18 @@ export default React.createClass({
     })
   },
 
+  renameAnalysis() {
+    let newName = _.trim(this.refs.renameName.getValue())
+    let oldName = this.state.nameToRename
+    this.postAnalysis(newName)  // TODO: upgrade post to callback here and use callback to delete old name
+    this.deleteAnalysis(oldName)
+    this.setState({
+      renameDialogOpen: false,
+      renameButtonDisabled: false,
+      nameToRename: '',
+    })
+  },
+
   onDropDownChange(e, index, value) {
     if (value === "+++MANAGE_ANALYSIS+++") {
       this.setState({
@@ -316,6 +384,25 @@ export default React.createClass({
     } else {
       this.getAnalysis(value)
     }
+  },
+
+  onRenameChange(event) {
+    let newName = _.trim(this.refs.renameName.getValue())
+    let newRenameButtonDisabled, newRenameErrorText
+    if (_.includes(this.state.analysisNames, newName)) {
+      newRenameButtonDisabled = true
+      newRenameErrorText = 'An analysis by this name already exists'
+    } else if (newName.length === 0) {
+      newRenameErrorText = 'Required'
+      newRenameButtonDisabled = true
+    } else {
+      newRenameErrorText = ''
+      newRenameButtonDisabled = false
+    }
+    this.setState({
+      renameButtonDisabled: newRenameButtonDisabled,
+      renameErrorText: newRenameErrorText,
+    })
   },
 
   onNameChange(event) {
@@ -339,14 +426,23 @@ export default React.createClass({
 
   getRowToolbarClass() {
     let RowToolbarClass = React.createClass({
-      handler(event) {
+      deleteHandler(event) {
         this.props.parent.deleteAnalysis(this.props.value)
+      },
+      renameHandler(event) {
+        this.props.parent.setState({
+          nameToRename: this.props.value,
+          renameDialogOpen: true,
+        })
       },
       render() {
         return (
           <Toolbar style={{height: 20, backgroundColor: "#FFFFFF"}}>
             <ToolbarGroup>
-              <IconButton style={{width: 50, marginRight: 10}} onTouchTap={this.handler}>
+              <IconButton style={{width: 40, marginRight: 0}} onTouchTap={this.renameHandler}>
+                <ActionSettings color="#000000" style={{marginLeft: 0, marginTop: 10, height: 20}}/>
+              </IconButton>
+              <IconButton style={{width: 50, marginRight: 10}} onTouchTap={this.deleteHandler}>
                 <ActionDelete color="#000000" style={{margin: 10, height: 20}}/>
               </IconButton>
             </ToolbarGroup>
@@ -373,9 +469,24 @@ export default React.createClass({
         onTouchTap={this.duplicateAnalysis}
       />,
     ]
+    const renameDialogActions = [
+      <FlatButton
+        label="Cancel"
+        secondary={true}
+        onTouchTap={this.renameDialogClose}
+        style={{marginRight: 5}}
+      />,
+      <RaisedButton
+        label="Rename"
+        primary={true}
+        keyboardFocused={false}
+        disabled={this.state.renameButtonDisabled}
+        onTouchTap={this.renameAnalysis}
+      />,
+    ]
     const manageDialogActions = [
       <FlatButton
-        label="OK"
+        label="Done"
         primary={true}
         onTouchTap={this.manageDialogClose}
         style={{marginRight: 5}}
@@ -433,32 +544,63 @@ export default React.createClass({
             </IconButton>
           </ToolbarGroup>
         </Toolbar>
-        <AceEditor
-          ref="editor"
-          mode={mode}
-          value={this.state.editorContents}
-          theme="github"
-          name="editor"
-          width="100%"
-          showPrintMargin={false}
-          editorProps={{$blockScrolling: Infinity}}
-          onChange={this.onChangeEditorContents}
-          onBlur={this.saveAnalysis}
-          onPaste={this.onPaste}
-          tabSize={2}/>
-        <Toolbar style={styles.resultBar}>
-          <ToolbarTitle text={"Result: " + this.state.aggregationResultStatus} />
-        </Toolbar>
-        <AceEditor
-          mode={mode}
-          value={this.state.aggregationResult}
-          theme="github"
-          name="result"
-          width="100%"
-          readOnly={true}
-          showPrintMargin={false}
-          editorProps={{$blockScrolling: true}}
-          tabSize={2} />
+        <Tabs>
+          <Tab label="Aggregation">
+            <AceEditor
+              ref="aggregation"
+              mode={mode}
+              value={this.state.editorContents}
+              theme="github"
+              name="aggregation"
+              width="100%"
+              showPrintMargin={false}
+              editorProps={{$blockScrolling: Infinity}}
+              onChange={this.onChangeEditorContents}
+              onBlur={this.saveAnalysis}
+              onPaste={this.onPaste}
+              tabSize={2}/>
+            <Toolbar style={styles.resultBar}>
+              <ToolbarTitle text={"Result: " + this.state.aggregationResultStatus} />
+            </Toolbar>
+            <AceEditor
+              mode={mode}
+              value={this.state.aggregationResult}
+              theme="github"
+              name="aggregationResult"
+              width="100%"
+              readOnly={true}
+              showPrintMargin={false}
+              editorProps={{$blockScrolling: true}}
+              tabSize={2} />
+            </Tab>
+            <Tab label="Transformation">
+              <AceEditor
+                ref="transformation"
+                mode={mode}
+                value={this.state.transformation}
+                theme="github"
+                name="transformation"
+                width="100%"
+                showPrintMargin={false}
+                editorProps={{$blockScrolling: Infinity}}
+                onChange={this.onChangeTransformation}
+                onBlur={this.saveAnalysis}
+                tabSize={2}/>
+              <Toolbar style={styles.resultBar}>
+                <ToolbarTitle text={"Result:"} />
+              </Toolbar>
+              <AceEditor
+                mode={mode}
+                value={this.state.transformationResult}
+                theme="github"
+                name="transformationResult"
+                width="100%"
+                readOnly={true}
+                showPrintMargin={false}
+                editorProps={{$blockScrolling: true}}
+                tabSize={2} />
+            </Tab>
+          </Tabs>
         <Dialog
           title="Duplicate analysis"
           actions={duplicateDialogActions}
@@ -487,7 +629,7 @@ export default React.createClass({
           <AdvancedTable
             columns={columns}
             RowToolbarClass={RowToolbarClass}
-            rowToolbarWidth={50}
+            rowToolbarWidth={90}
             valueField="name"
             data={this.state.analysisNames}
             initialSortField="name"
@@ -496,6 +638,23 @@ export default React.createClass({
             parent={this}
             >
           </AdvancedTable>
+        </Dialog>
+        <Dialog
+          title="Rename analysis"
+          actions={renameDialogActions}
+          modal={false}
+          open={this.state.renameDialogOpen}
+          onRequestClose={this.renameDialogClose}
+          contentStyle={{width: 300}}
+        >
+          <TextField
+            hintText="Name to rename to"
+            floatingLabelText="New name"
+            defaultValue={this.state.nameToRename}
+            onChange={this.onRenameChange}
+            errorText={this.state.renameErrorText}
+            ref="renameName"
+          />
         </Dialog>
       </Paper>
     )
