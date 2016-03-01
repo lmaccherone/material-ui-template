@@ -169,6 +169,9 @@ export default React.createClass({
   },
 
   getSpecToPutOrPost(newName) {
+    console.log(this.refs.aggregation.value)
+    console.log(this.refs.transformation.value)
+
     if (! newName) {
       newName = this.state.name
     }
@@ -296,26 +299,15 @@ export default React.createClass({
         this.timeout = setTimeout(this.onTimeout, 5)
       }
     } else {
-      this.setState({
-        editorContents: newValue,
-        saved: false,
-      })
+      //this.setState({
+      //  editorContents: newValue,
+      //  saved: false,
+      //})
     }
   },
 
   onPaste() {
     this.pastePending = true
-  },
-
-  onChangeTransformation(newValue) {
-    this.setState({
-      transformation: newValue,
-      saved: false,
-    })
-  },
-
-  onPasteTransformation() {
-
   },
 
   getAnalysis(name) {
@@ -583,7 +575,6 @@ export default React.createClass({
                 width="100%"
                 showPrintMargin={false}
                 editorProps={{$blockScrolling: Infinity}}
-                onChange={this.onChangeTransformation}
                 onBlur={this.saveAnalysis}
                 tabSize={2}/>
               <Toolbar style={styles.resultBar}>
