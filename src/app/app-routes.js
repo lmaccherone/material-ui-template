@@ -14,7 +14,7 @@ import Blank from './components/pages/page-types/blank'
 import Config from './components/pages/page-types/config'
 
 import EventRate from './components/pages/pendo/EventRate'
-import AggregationDesigner from './components/pages/pendo/AggregationDesigner'
+import AnalysisDesigner from './components/pages/pendo/AnalysisDesigner'
 
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
@@ -37,7 +37,7 @@ let appRoutes = {
     ]},
     {name: "Pendo", path: "pendo", redirectTo: "/pendo/event-rate", childRoutes: [
       {name: "Event Rate", path: "event-rate", component: EventRate},
-      {name: "Aggregation Designer", path: "aggregation-designer", component: AggregationDesigner},
+      {name: "Analysis Designer", path: "analysis-designer", component: AnalysisDesigner},
     ]},
   ]
 }

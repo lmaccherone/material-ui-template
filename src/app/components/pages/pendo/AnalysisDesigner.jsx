@@ -47,7 +47,7 @@ export default React.createClass({
   getInitialState() {
     return {
       mode: 'YAML',
-      editorContents: '',
+      aggregation: '',
       name: '',
       analysisNames: [],
       aggregationResult: '',
@@ -55,7 +55,6 @@ export default React.createClass({
       aggregationResultError: '',
       transformation: '',
       transformationResult: '',
-      saved: true,
       duplicateButtonDisabled: true,
       duplicateDialogOpen: false,
       duplicateErrorText: '',
@@ -146,7 +145,7 @@ export default React.createClass({
   },
 
   runAggregation() {
-    let body = yaml.safeLoad(this.state.editorContents)
+    let body = yaml.safeLoad(this.refs.aggregation.editor.getValue())
     request('POST', '/api/aggregation', body, (err, result) => {
       if (err) {
         this.setState({
@@ -168,36 +167,30 @@ export default React.createClass({
     })
   },
 
-  getSpecToPutOrPost(newName) {
-    console.log(this.refs.aggregation.value)
-    console.log(this.refs.transformation.value)
-
+  getStateToPutOrPost(newName) {
     if (! newName) {
       newName = this.state.name
     }
-    let spec = {
+    let state = {
       name: newName,
-      editorContents: this.state.editorContents,
+      aggregation: this.refs.aggregation.editor.getValue(),
       aggregationResult: this.state.aggregationResult,
       aggregtionResultError: this.state.aggregationResultError,
       aggregationResultStatus: this.state.aggregationResultStatus,
-      transformation: this.state.transformation,
+      transformation: this.refs.transformation.editor.getValue(),
       transformationResult: this.state.transformationResult,
     }
-    return spec
+    this.setState({state})
+    return state
   },
 
   putOrPostAnalysisCallback(err, result) {
     if (err) {
       console.log(err)  // TODO: Replace with flair or toast
-      this.setState({
-        saved: false,
-      })
     } else {
       let newName = result.body.name
       let newAnalysisNames = _.sortBy(_.union(this.state.analysisNames, [newName]))
       this.setState({
-        saved: true,
         name: newName,
         analysisNames: newAnalysisNames,
       })
@@ -205,22 +198,16 @@ export default React.createClass({
   },
 
   postAnalysis(newName) {
-    let spec = this.getSpecToPutOrPost(newName)
-    request('POST', `/api/analysis`, spec, this.putOrPostAnalysisCallback)
+    let state = this.getStateToPutOrPost(newName)
+    request('POST', `/api/analysis`, state, this.putOrPostAnalysisCallback)
   },
 
   putAnalysis() {
-    let spec = this.getSpecToPutOrPost(this.state.name)
-    request('PUT', `/api/analysis/${spec.name}`, spec, this.putOrPostAnalysisCallback )
+    let state = this.getStateToPutOrPost(this.state.name)
+    request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
 
-  saveAnalysis() {
-    if (! this.state.saved) {
-      this.putAnalysis()
-    }
-  },
-
-  reformat(newEditorContents = this.state.editorContents,
+  reformat(newAggregation = this.state.aggregation,
            newTransformation = this.state.transformation,
            newAggregationResult = this.state.aggregationResult,
            newAggregationResultStatus = this.state.aggregationResultStatus,
@@ -228,12 +215,12 @@ export default React.createClass({
            newMode = this.state.mode,
            newName = this.state.name,
            newTransformationResult = this.state.transformationResult) {
-    let aggregationResultAsObject, editorContentsAsObject, transformationResultAsObject
+    let aggregationResultAsObject, aggregationAsObject, transformationResultAsObject
     try {
-      editorContentsAsObject = yaml.safeLoad(newEditorContents)
+      aggregationAsObject = yaml.safeLoad(newAggregation)
     } catch (e) {}
-    if (! editorContentsAsObject) {
-      editorContentsAsObject = {}
+    if (! aggregationAsObject) {
+      aggregationAsObject = {}
     }
     try {
       aggregationResultAsObject = yaml.safeLoad(newAggregationResult)
@@ -248,8 +235,8 @@ export default React.createClass({
       transformationResultAsObject = {}
     }
     if (newMode === 'YAML') {
-      if (editorContentsAsObject) {
-        newEditorContents = yaml.safeDump(editorContentsAsObject)
+      if (aggregationAsObject) {
+        newAggregation = yaml.safeDump(aggregationAsObject)
       }
       if (aggregationResultAsObject) {
         newAggregationResult = yaml.safeDump(aggregationResultAsObject)
@@ -258,8 +245,8 @@ export default React.createClass({
         newTransformationResult = yaml.safeDump(transformationResultAsObject)
       }
     } else {
-      if (editorContentsAsObject) {
-        newEditorContents = JSON.stringify(editorContentsAsObject, null, 2)
+      if (aggregationAsObject) {
+        newAggregation = JSON.stringify(aggregationAsObject, null, 2)
       }
       if (aggregationResultAsObject) {
         newAggregationResult = JSON.stringify(aggregationResultAsObject, null, 2)
@@ -269,8 +256,7 @@ export default React.createClass({
       }
     }
     this.setState({
-      saved: false,
-      editorContents: newEditorContents,
+      aggregation: newAggregation,
       aggregationResult: newAggregationResult,
       aggregationResultStatus: newAggregationResultStatus,
       aggregationResultError: newAggregationResultError,
@@ -288,7 +274,7 @@ export default React.createClass({
     delete this.newValue
   },
 
-  onChangeEditorContents(newValue) {
+  onChangeAggregation(newValue) {
     if (this.pastePending) {  // assumes the onPaste event is called before this onChange handler
       // Below debounces calls to this onChange handler since pastes often result in multiple onChange events
       this.newValue = newValue
@@ -300,8 +286,7 @@ export default React.createClass({
       }
     } else {
       //this.setState({
-      //  editorContents: newValue,
-      //  saved: false,
+      //  aggregation: newValue,
       //})
     }
   },
@@ -316,12 +301,9 @@ export default React.createClass({
         console.log(err)  // TODO: Replace with flair or toast
       } else {
         let body = JSON.parse(result.body)
-        this.reformat(body.editorContents, body.transformation,
+        this.reformat(body.aggregation, body.transformation,
           body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name,
           body.transformationResult)
-        this.setState({
-          saved: true
-        })
       }
     })
   },
@@ -340,7 +322,7 @@ export default React.createClass({
             analysisNames,
             name: '',
             aggregationResult: '',
-            editorContents: '',
+            aggregation: '',
           })
         }
       }
@@ -445,6 +427,22 @@ export default React.createClass({
     return RowToolbarClass
   },
 
+  onBlurAggregation() {
+    let newValue = this.refs.aggregation.editor.getValue()
+    this.putAnalysis()
+    if (this.state.aggregation !== newValue) {
+      this.setState({
+        aggregation: newValue
+      })
+    }
+  },
+
+  onBlurTransformation() {
+    this.setState({
+      transformation: this.refs.transformation.editor.getValue()
+    })
+  },
+
   render() {
     const duplicateDialogActions = [
       <FlatButton
@@ -485,14 +483,6 @@ export default React.createClass({
       />,
     ]
     let styles = this.getStyles()
-    let savedColor, savedTooltip
-    if (this.state.saved) {
-      savedColor = this.context.muiTheme.rawTheme.palette.accent2Color
-      savedTooltip = ""
-    } else {
-      savedColor = this.context.muiTheme.rawTheme.palette.primary1Color
-      savedTooltip = "Save"
-    }
     let defaultToggled, mode
     if (this.state.mode === 'JSON') {
       defaultToggled = false
@@ -528,11 +518,8 @@ export default React.createClass({
               <Divider />
               <MenuItem key={-1} value={"+++MANAGE_ANALYSIS+++"} primaryText={"Manage analysis..."} />
             </DropDownMenu>
-            <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 0, width: 40, float: 'left'}} tooltip="Duplicate as..." tooltipPosition="top-center" onTouchTap={this.duplicateDialogOpen}>
+            <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 20}} tooltip="Duplicate as..." tooltipPosition="top-center" onTouchTap={this.duplicateDialogOpen}>
               <ContentAddCircle />
-            </IconButton>
-            <IconButton style={{marginTop: 3, marginLeft: 0, marginRight: 20}} tooltip={savedTooltip} tooltipPosition="top-center" onTouchTap={this.saveAnalysis}>
-              <ContentSave color={savedColor} />
             </IconButton>
           </ToolbarGroup>
         </Toolbar>
@@ -541,14 +528,14 @@ export default React.createClass({
             <AceEditor
               ref="aggregation"
               mode={mode}
-              value={this.state.editorContents}
+              value={this.state.aggregation}
               theme="github"
               name="aggregation"
               width="100%"
               showPrintMargin={false}
               editorProps={{$blockScrolling: Infinity}}
-              onChange={this.onChangeEditorContents}
-              onBlur={this.saveAnalysis}
+              onChange={this.onChangeAggregation}
+              onBlur={this.onBlurAggregation}
               onPaste={this.onPaste}
               tabSize={2}/>
             <Toolbar style={styles.resultBar}>
@@ -575,7 +562,8 @@ export default React.createClass({
                 width="100%"
                 showPrintMargin={false}
                 editorProps={{$blockScrolling: Infinity}}
-                onBlur={this.saveAnalysis}
+                onChange={this.onChangeTransformation}
+                onBlur={this.onBlurTransformation}
                 tabSize={2}/>
               <Toolbar style={styles.resultBar}>
                 <ToolbarTitle text={"Result:"} />

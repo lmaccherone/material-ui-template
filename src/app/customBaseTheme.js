@@ -20,7 +20,8 @@ export default {
     primary1Color: '#DE1E54',  // App Bar background, Tab bar background, completed (left) part of slider, checkboxes/radio selected, toggle-on color
     primary2Color: Colors.cyan700,  // Background for heading on date picker, selected date background
     primary3Color: Colors.grey500,  // Background of toggles
-    accent1Color: Colors.grey400,  // Tab active indicator, Primary button background, Snackbar action text
+    //accent1Color: Colors.grey400,  // Tab active indicator, Primary button background, Snackbar action text
+    accent1Color: Colors.cyan700,  // Tab active indicator, Primary button background, Snackbar action text
     //accent2Color: '#0B253D',  // Toggle-off color (override if putting toggle in toolbar), Toolbar background
     accent2Color: Colors.grey600,  // Toggle-off color (override if putting toggle in toolbar), Toolbar background
     accent3Color: Colors.grey300,  // Hover color for right side of slider
