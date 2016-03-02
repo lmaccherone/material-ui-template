@@ -108,6 +108,9 @@ const config = {
       { test: /\.coffee$/, loader: 'coffee' },
     ],
   },
+  resolve: {
+    extensions: ["", ".cjsx", ".coffee", ".js", ".jsx", ".json", ".txt", ".md", ".css"]
+  },
   eslint: {
     configFile: '../.eslintrc',
   },

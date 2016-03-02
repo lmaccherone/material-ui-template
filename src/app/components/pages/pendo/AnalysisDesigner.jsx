@@ -14,18 +14,23 @@ import {
   TextField,
   Tab, Tabs,
 } from 'material-ui'
-import {ActionLaunch, ActionDelete, ActionSettings, ContentSave, ContentAddCircle} from 'material-ui/lib/svg-icons'
+import {ActionDelete, ActionSettings, ContentAddCircle, MapsDirectionsRun} from 'material-ui/lib/svg-icons'
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
 
 import brace from 'brace'
 import AceEditor from 'react-ace'
+import 'brace/mode/coffee'
 import 'brace/mode/yaml'
 import 'brace/mode/json'
 import 'brace/theme/github'
 
 import yaml from 'js-yaml'
 import _ from 'lodash'
+import CoffeeScript from '../../../coffee-script'
+
+//import lumenize from 'lumenize'
+import lumenize from '../../../lumenize'
 
 import request from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
@@ -79,6 +84,31 @@ export default React.createClass({
 
   manageDialogClose() {
     this.setState({manageDialogOpen: false})
+  },
+
+  renameAnalysis() {
+    let newName = _.trim(this.refs.renameName.getValue())
+    let oldName = this.state.nameToRename
+    request('GET', `/api/analysis/${oldName}`, (err, result) => {
+      if (err) {
+        console.log('Error getting analysis during rename. Replace with some sort of flair or toast.')
+      } else {
+        let stateAsObject = yaml.safeLoad(result.body)
+        stateAsObject.name = newName
+        request('POST', `/api/analysis`, stateAsObject, (err, result) => {
+          if (err) {
+            console.log('Error posting during rename. Replace with some sort of flair or toast.')
+          } else {
+            this.deleteAnalysis(oldName)
+            this.setState({
+              renameDialogOpen: false,
+              renameButtonDisabled: false,
+              nameToRename: '',
+            })
+          }
+        })
+      }
+    })
   },
 
   renameDialogOpen(nameToRename) {
@@ -167,6 +197,42 @@ export default React.createClass({
     })
   },
 
+  getAnalysis(name) {
+    request('GET', `/api/analysis/${name}`, (err, result) => {
+      if (err) {
+        console.log(err)  // TODO: Replace with flair or toast
+      } else {
+        let body = JSON.parse(result.body)
+        this.reformat(body.aggregation, body.transformation,
+          body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name,
+          body.transformationResult)
+      }
+    })
+  },
+
+  deleteAnalysis(name) {
+    request('DELETE', `/api/analysis/${name}`, (err, result) => {
+      if (err) {
+        console.log(err)  // TODO: Replace with flair or toast
+      } else {
+        let analysisNames = this.state.analysisNames
+        _.pull(analysisNames, name)
+        if (_.contains(analysisNames, this.state.name)) {
+          this.setState({analysisNames})
+        } else {
+          this.setState({
+            analysisNames,
+            name: '',
+            aggregationResult: '',
+            aggregation: '',
+            transformation: '',
+            transformationResult: '',
+          })
+        }
+      }
+    })
+  },
+
   getStateToPutOrPost(newName) {
     if (! newName) {
       newName = this.state.name
@@ -241,7 +307,7 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = yaml.safeDump(aggregationResultAsObject)
       }
-      if (aggregationResultAsObject) {
+      if (transformationResultAsObject && _.keys(transformationResult.object).length > 0) {
         newTransformationResult = yaml.safeDump(transformationResultAsObject)
       }
     } else {
@@ -295,38 +361,23 @@ export default React.createClass({
     this.pastePending = true
   },
 
-  getAnalysis(name) {
-    request('GET', `/api/analysis/${name}`, (err, result) => {
-      if (err) {
-        console.log(err)  // TODO: Replace with flair or toast
-      } else {
-        let body = JSON.parse(result.body)
-        this.reformat(body.aggregation, body.transformation,
-          body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name,
-          body.transformationResult)
-      }
+  onChangeTimeout() {
+    if (this.changeTimeout) {
+      clearTimeout(this.changeTimeout)
+      delete this.changeTimeout
+    }
+    this.setState({
+      transformation: this.refs.transformation.editor.getValue()
     })
+    this.putAnalysis()
   },
-
-  deleteAnalysis(name) {
-    request('DELETE', `/api/analysis/${name}`, (err, result) => {
-      if (err) {
-        console.log(err)  // TODO: Replace with flair or toast
-      } else {
-        let analysisNames = this.state.analysisNames
-        _.pull(analysisNames, name)
-        if (_.contains(analysisNames, this.state.name)) {
-          this.setState({analysisNames})
-        } else {
-          this.setState({
-            analysisNames,
-            name: '',
-            aggregationResult: '',
-            aggregation: '',
-          })
-        }
-      }
-    })
+  onChange() {
+    if (this.changeTimeout) {
+      clearTimeout(this.changeTimeout)
+      this.changeTimeout = setTimeout(this.onChangeTimeout, 3000)
+    } else {
+      this.changeTimeout = setTimeout(this.onChangeTimeout, 3000)
+    }
   },
 
   duplicateAnalysis() {
@@ -335,18 +386,6 @@ export default React.createClass({
     this.setState({
       duplicateDialogOpen: false,
       duplicateButtonDisabled: false,
-    })
-  },
-
-  renameAnalysis() {
-    let newName = _.trim(this.refs.renameName.getValue())
-    let oldName = this.state.nameToRename
-    this.postAnalysis(newName)  // TODO: upgrade post to callback here and use callback to delete old name
-    this.deleteAnalysis(oldName)
-    this.setState({
-      renameDialogOpen: false,
-      renameButtonDisabled: false,
-      nameToRename: '',
     })
   },
 
@@ -437,10 +476,23 @@ export default React.createClass({
     }
   },
 
+  evaluateTransformation() {
+    let transformation = this.refs.transformation.editor.getValue()
+    let {aggregationResult} = this.state
+    let f = eval(CoffeeScript.compile(transformation, {bare: true}))
+    let newTransformationResult = f(aggregationResult, lumenize)
+    this.reformat(undefined, undefined, undefined, undefined, undefined, undefined, undefined, newTransformationResult)
+  },
+
   onBlurTransformation() {
-    this.setState({
-      transformation: this.refs.transformation.editor.getValue()
-    })
+    let newValue = this.refs.transformation.editor.getValue()
+    this.evaluateTransformation()
+    this.putAnalysis()
+    if (this.state.transformation !== newValue) {
+      this.setState({
+        transformation: newValue
+      })
+    }
   },
 
   render() {
@@ -499,7 +551,7 @@ export default React.createClass({
       <Paper zDepth={5}>
         <Toolbar noGutter={true}>
           <IconButton firstChild={true} style={{marginTop: 3, marginLeft: 0, width: 40, float: 'left'}} tooltip="Run" tooltipPosition="top-center" onTouchTap={this.runAggregation}>
-            <ActionLaunch />
+            <MapsDirectionsRun />
           </IconButton>
           <ToolbarGroup float="left">
             <Toggle
@@ -555,14 +607,14 @@ export default React.createClass({
             <Tab label="Transformation">
               <AceEditor
                 ref="transformation"
-                mode={mode}
+                mode="coffee"
                 value={this.state.transformation}
                 theme="github"
                 name="transformation"
                 width="100%"
                 showPrintMargin={false}
                 editorProps={{$blockScrolling: Infinity}}
-                onChange={this.onChangeTransformation}
+                onChange={this.onChange}
                 onBlur={this.onBlurTransformation}
                 tabSize={2}/>
               <Toolbar style={styles.resultBar}>
