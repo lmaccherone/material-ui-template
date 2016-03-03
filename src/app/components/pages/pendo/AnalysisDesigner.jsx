@@ -171,7 +171,7 @@ export default React.createClass({
     } else if (this.state.mode === 'YAML') {
       newMode = 'JSON'
     }
-    this.reformat(undefined, undefined, undefined, undefined, undefined, newMode)
+    this.reformat({mode: newMode})
   },
 
   runAggregation() {
@@ -203,9 +203,7 @@ export default React.createClass({
         console.log(err)  // TODO: Replace with flair or toast
       } else {
         let body = JSON.parse(result.body)
-        this.reformat(body.aggregation, body.transformation,
-          body.aggregationResult, body.aggregationResultStatus, body.aggregationResultError, undefined, name,
-          body.transformationResult)
+        this.reformat(body)
       }
     })
   },
@@ -273,14 +271,16 @@ export default React.createClass({
     request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
 
-  reformat(newAggregation = this.refs.aggregation.editor.getValue(),
-           newTransformation = this.refs.transformation.editor.getValue(),
-           newAggregationResult = this.state.aggregationResult,
-           newAggregationResultStatus = this.state.aggregationResultStatus,
-           newAggregationResultError = this.state.aggregationResultError,
-           newMode = this.state.mode,
-           newName = this.state.name,
-           newTransformationResult = this.state.transformationResult) {
+  reformat(updates) {
+    let newAggregation = updates.aggregation || this.refs.aggregation.editor.getValue()
+    let newTransformation = updates.transformation || this.refs.transformation.editor.getValue()
+    let newAggregationResult = updates.aggregationResult || this.state.aggregationResult
+    let newAggregationResultStatus = updates.aggregationResultStatus || this.state.aggregationResultStatus
+    let newAggregationResultError = updates.aggregationResultError || this.state.aggregationResultError
+    let newMode = updates.mode || this.state.mode
+    let newName = updates.name || this.state.name
+    let newTransformationResult = updates.transformationResult || this.state.transformationResult
+
     let aggregationResultAsObject, aggregationAsObject, transformationResultAsObject
     try {
       aggregationAsObject = yaml.safeLoad(newAggregation)
@@ -338,7 +338,7 @@ export default React.createClass({
   },
 
   //onTimeout() {
-  //  this.reformat(this.newValue)
+  //  this.reformat({aggregation: this.newValue})
   //  this.timeout = false
   //  this.pastePending = false
   //  delete this.newValue
@@ -365,6 +365,7 @@ export default React.createClass({
   //  this.pastePending = true
   //},
 
+  // This is designed to debounce multiple changes. I have the timeout set to 3s
   onChangeTimeout() {
     if (this.changeTimeout) {
       clearTimeout(this.changeTimeout)
@@ -489,7 +490,7 @@ export default React.createClass({
     }
     let f = eval(CoffeeScript.compile(transformation, {bare: true}))
     let newTransformationResult = f(aggregationResult, lumenize)
-    this.reformat(undefined, undefined, undefined, undefined, undefined, undefined, undefined, newTransformationResult)
+    this.reformat({transformationResult: newTransformationResult})
   },
 
   onBlurTransformation() {
