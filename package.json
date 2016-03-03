@@ -109,13 +109,5 @@
     "transform-loader": "^0.2.3",
     "webpack": "^1.12.9",
     "webpack-dev-server": "^1.10.1"
-  },
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "browserify-shim": {
-    "lumenize": "global:lumenize"
   }
 }

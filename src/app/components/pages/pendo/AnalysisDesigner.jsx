@@ -273,8 +273,8 @@ export default React.createClass({
     request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
 
-  reformat(newAggregation = this.state.aggregation,
-           newTransformation = this.state.transformation,
+  reformat(newAggregation = this.refs.aggregation.editor.getValue(),
+           newTransformation = this.refs.transformation.editor.getValue(),
            newAggregationResult = this.state.aggregationResult,
            newAggregationResultStatus = this.state.aggregationResultStatus,
            newAggregationResultError = this.state.aggregationResultError,
@@ -294,11 +294,15 @@ export default React.createClass({
     if (! aggregationResultAsObject) {
       aggregationResultAsObject = {}
     }
-    try {
-      transformationResultAsObject = yaml.safeLoad(newTransformationResult)
-    } catch (e) {}
-    if (! transformationResultAsObject) {
-      transformationResultAsObject = {}
+    if (_.isString(newTransformationResult)) {
+      try {
+        transformationResultAsObject = yaml.safeLoad(newTransformationResult)
+      } catch (e) {}
+      //if (!transformationResultAsObject) {
+      //  transformationResultAsObject = {}
+      //}
+    } else {
+      transformationResultAsObject = newTransformationResult
     }
     if (newMode === 'YAML') {
       if (aggregationAsObject) {
@@ -307,7 +311,7 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = yaml.safeDump(aggregationResultAsObject)
       }
-      if (transformationResultAsObject && _.keys(transformationResult.object).length > 0) {
+      if (transformationResultAsObject && _.keys(transformationResultAsObject).length > 0) {
         newTransformationResult = yaml.safeDump(transformationResultAsObject)
       }
     } else {
@@ -317,7 +321,7 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = JSON.stringify(aggregationResultAsObject, null, 2)
       }
-      if (aggregationResultAsObject) {
+      if (transformationResultAsObject && _.keys(transformationResultAsObject).length > 0) {
         newTransformationResult = JSON.stringify(transformationResultAsObject, null, 2)
       }
     }
@@ -333,33 +337,33 @@ export default React.createClass({
     })
   },
 
-  onTimeout() {
-    this.reformat(this.newValue)
-    this.timeout = false
-    this.pastePending = false
-    delete this.newValue
-  },
-
-  onChangeAggregation(newValue) {
-    if (this.pastePending) {  // assumes the onPaste event is called before this onChange handler
-      // Below debounces calls to this onChange handler since pastes often result in multiple onChange events
-      this.newValue = newValue
-      if (this.timeout) {
-        clearTimeout(this.timeout)
-        this.timeout = setTimeout(this.onTimeout, 5)
-      } else {
-        this.timeout = setTimeout(this.onTimeout, 5)
-      }
-    } else {
-      //this.setState({
-      //  aggregation: newValue,
-      //})
-    }
-  },
-
-  onPaste() {
-    this.pastePending = true
-  },
+  //onTimeout() {
+  //  this.reformat(this.newValue)
+  //  this.timeout = false
+  //  this.pastePending = false
+  //  delete this.newValue
+  //},
+  //
+  //onChangeAggregation(newValue) {
+  //  if (this.pastePending) {  // assumes the onPaste event is called before this onChange handler
+  //    // Below debounces calls to this onChange handler since pastes often result in multiple onChange events
+  //    this.newValue = newValue
+  //    if (this.timeout) {
+  //      clearTimeout(this.timeout)
+  //      this.timeout = setTimeout(this.onTimeout, 5)
+  //    } else {
+  //      this.timeout = setTimeout(this.onTimeout, 5)
+  //    }
+  //  } else {
+  //    //this.setState({
+  //    //  aggregation: newValue,
+  //    //})
+  //  }
+  //},
+  //
+  //onPaste() {
+  //  this.pastePending = true
+  //},
 
   onChangeTimeout() {
     if (this.changeTimeout) {
@@ -367,7 +371,8 @@ export default React.createClass({
       delete this.changeTimeout
     }
     this.setState({
-      transformation: this.refs.transformation.editor.getValue()
+      aggregation: this.refs.aggregation.editor.getValue(),
+      transformation: this.refs.transformation.editor.getValue(),
     })
     this.putAnalysis()
   },
@@ -478,7 +483,10 @@ export default React.createClass({
 
   evaluateTransformation() {
     let transformation = this.refs.transformation.editor.getValue()
-    let {aggregationResult} = this.state
+    let aggregationResult = yaml.safeLoad(this.state.aggregationResult)
+    if (! aggregationResult) {
+      console.error('Failed to parse aggregationResult')
+    }
     let f = eval(CoffeeScript.compile(transformation, {bare: true}))
     let newTransformationResult = f(aggregationResult, lumenize)
     this.reformat(undefined, undefined, undefined, undefined, undefined, undefined, undefined, newTransformationResult)
@@ -487,12 +495,12 @@ export default React.createClass({
   onBlurTransformation() {
     let newValue = this.refs.transformation.editor.getValue()
     this.evaluateTransformation()
-    this.putAnalysis()
     if (this.state.transformation !== newValue) {
       this.setState({
         transformation: newValue
       })
     }
+    this.putAnalysis()
   },
 
   render() {
@@ -586,9 +594,8 @@ export default React.createClass({
               width="100%"
               showPrintMargin={false}
               editorProps={{$blockScrolling: Infinity}}
-              onChange={this.onChangeAggregation}
+              onChange={this.onChange}
               onBlur={this.onBlurAggregation}
-              onPaste={this.onPaste}
               tabSize={2}/>
             <Toolbar style={styles.resultBar}>
               <ToolbarTitle text={"Result: " + this.state.aggregationResultStatus} />

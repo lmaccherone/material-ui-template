@@ -18,6 +18,8 @@ export default React.createClass({
     //RowToolbarClass: React.PropTypes.element,
     rowToolbarWidth: React.PropTypes.number,
     height: React.PropTypes.string,
+    baseCellStyle: React.PropTypes.object,
+    cellStyleCallback: React.PropTypes.func,
   },
 
   contextTypes: {
@@ -68,6 +70,9 @@ export default React.createClass({
 
   transformData(originalData) {
     let data
+    if (originalData.length === 0) {
+      return originalData
+    }
     let firstRow = originalData[0]
     if (_.isPlainObject(firstRow)) {
       data = originalData
@@ -109,6 +114,15 @@ export default React.createClass({
     this.setState({
       sortedData
     })
+  },
+
+  getCellStyle(value){
+    let baseCellStyle = this.props.baseCellStyle || {}
+    if (this.props.cellStyleCallback) {
+      return this.mergeStyles(baseCellStyle, this.props.cellStyleCallback(value))
+    } else {
+      return baseCellStyle
+    }
   },
 
   render() {
@@ -159,7 +173,7 @@ export default React.createClass({
                 {columns.map((field, index) => {
                   if (! field.hidden) {
                     return (
-                      <TableRowColumn style={{height: "40px"}} selectable={false}
+                      <TableRowColumn style={this.getCellStyle(detailRow[field.field])} selectable={false}
                                       key={field.field}>{detailRow[field.field]}</TableRowColumn>
                     )
                   }

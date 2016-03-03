@@ -177,7 +177,9 @@ export default React.createClass({
           valueField="name"
           data={this.state.detail}
           initialSortField="eventRate"
-          initialSortAscending={true}>
+          initialSortAscending={true}
+          baseCellStyle={{height: "40px"}}
+        >
         </AdvancedTable>
       </div>
     )
