@@ -87,6 +87,14 @@ const config = {
         loader: 'babel-loader',
         exclude: /node_modules/,
       },
+      //{
+      //  test: /\.js$/,
+      //  loaders: [
+      //    "transform?brfs",
+      //    'babel-loader',
+      //  ],
+      //  exclude: /node_modules/,
+      //},
       {
         test: /\.json$/,
         loader: 'json-loader',
@@ -107,6 +115,11 @@ const config = {
       { test: /\.cjsx$/, loaders: ['coffee', 'cjsx']},
       { test: /\.coffee$/, loader: 'coffee' },
     ],
+    //postLoaders: [
+    //  {
+    //    loader: "transform?brfs"
+    //  }
+    //],
   },
   resolve: {
     extensions: ["", ".cjsx", ".coffee", ".js", ".jsx", ".json", ".txt", ".md", ".css"]

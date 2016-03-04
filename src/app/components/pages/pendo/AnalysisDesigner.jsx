@@ -1,6 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import mui from 'material-ui'
+import * as muiSVGIcons from 'material-ui/lib/svg-icons'
+import * as muiStyles from 'material-ui/lib/styles'
+
 import {
   Mixins,
   Toolbar, ToolbarGroup, ToolbarTitle,
@@ -12,8 +16,7 @@ import {
   IconButton,
   Dialog,
   TextField,
-  Tab, Tabs,
-} from 'material-ui'
+  Tab, Tabs} from 'material-ui'
 import {ActionDelete, ActionSettings, ContentAddCircle, MapsDirectionsRun} from 'material-ui/lib/svg-icons'
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
@@ -28,12 +31,15 @@ import 'brace/theme/github'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 import CoffeeScript from '../../../coffee-script'
+import transformCJSX from 'coffee-react-transform'
 
-//import lumenize from 'lumenize'
+//import lumenize from 'lumenize'  // Got webpack config to work as long as I use the npm version of Lumenize, but get runtime error in timezone-js.js: Can't find
 import lumenize from '../../../lumenize'
 
 import request from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
+
+let pkgs = {_, AdvancedTable, lumenize, muiStyles, muiSVGIcons, mui, ReactDOM, React}
 
 export default React.createClass({
 
@@ -297,7 +303,7 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = yaml.safeDump(aggregationResultAsObject)
       }
-      if (transformationResultAsObject && _.keys(transformationResultAsObject).length > 0) {
+      if (transformationResultAsObject) {
         newTransformationResult = yaml.safeDump(transformationResultAsObject)
       }
     } else {
@@ -307,7 +313,7 @@ export default React.createClass({
       if (aggregationResultAsObject) {
         newAggregationResult = JSON.stringify(aggregationResultAsObject, null, 2)
       }
-      if (transformationResultAsObject && _.keys(transformationResultAsObject).length > 0) {
+      if (transformationResultAsObject) {
         newTransformationResult = JSON.stringify(transformationResultAsObject, null, 2)
       }
     }
@@ -490,14 +496,17 @@ export default React.createClass({
   // For Visualization
 
   evaluateVisualization() {
+    this.refs.visualization.editor.session.setUseWorker(false)
+    let transformationResult = yaml.safeLoad(this.state.transformationResult)
     let visualization = this.refs.visualization.editor.getValue()
     let domNode = document.getElementById("visualizationResult")
-    console.log(domNode)
-    let f = eval(CoffeeScript.compile(visualization, {bare: true}))
-    f(domNode)
-    // TODO: Implement REPL for visualization
-    //let f = eval(CoffeeScript.compile(visualization, {bare: true}))
-    //let newVisualizationResult = f(transformationResult, lumenize)
+    let cs = transformCJSX(visualization, {})
+    let js = CoffeeScript.compile(cs, {bare: true})
+    // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
+    //import jsSyntaxTransform from 'coffee-react-jstransform'
+    //js = jsSyntaxTransform(js)
+    let f = eval(js)
+    f(transformationResult, domNode, pkgs)
   },
 
   onBlurVisualization() {
@@ -521,10 +530,6 @@ export default React.createClass({
         />,
       ]
     )
-  },
-
-  ondrag(event) {
-    console.log('hello')
   },
 
   render() {
@@ -621,7 +626,7 @@ export default React.createClass({
                   onBlur={this.onBlurAggregation}
                   tabSize={2}/>
               </div>
-              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
+              <div style={{width: 1, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={styles.resultBar}>
                   <ToolbarTitle text={"Aggregation Result: " + this.state.aggregationResultStatus} />
@@ -639,7 +644,7 @@ export default React.createClass({
               </div>
             </div>
           </Tab>
-          <Tab label="Transformation">
+          <Tab label="Transformation" onActive={this.evaluateTransformation}>
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
               <div style={{minWidth: minWidth, flexGrow: 1}}>
                 <Toolbar style={styles.resultBar}>
@@ -658,7 +663,7 @@ export default React.createClass({
                   onBlur={this.onBlurTransformation}
                   tabSize={2}/>
               </div>
-              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
+              <div style={{width: 1, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={styles.resultBar}>
                   <ToolbarTitle text={"Transformation Result"} />
@@ -676,7 +681,7 @@ export default React.createClass({
               </div>
             </div>
           </Tab>
-          <Tab label="Visualization">
+          <Tab label="Visualization" onActive={this.evaluateVisualization}>
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
               <div style={{minWidth: minWidth, flexGrow: 1}}>
                 <Toolbar style={styles.resultBar}>
@@ -695,7 +700,7 @@ export default React.createClass({
                   onBlur={this.onBlurVisualization}
                   tabSize={2}/>
               </div>
-              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
+              <div style={{width: 1, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={{color: this.context.muiTheme.rawTheme.palette.textColor}}>
                   <ToolbarTitle text={"Visualization Preview"} />

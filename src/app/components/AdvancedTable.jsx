@@ -136,7 +136,7 @@ export default React.createClass({
         style={this.props.style}
       >
         <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
-          <TableRow key={0} style={{color: "#000000", backgroundColor: this.context.muiTheme.rawTheme.palette.accent2Color}}>
+          <TableRow key={0} style={{color: "#000000", backgroundColor: "#CCCCCC"}}>
             {columns.map((field, index) => {
               if (! field.hidden) {
                 let sortIcon
