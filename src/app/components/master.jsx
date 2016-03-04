@@ -159,17 +159,18 @@ const Master = React.createClass({
     let docked = false;
     let showMenuIconButton = true;
 
-    //if (this.isDeviceSize(StyleResizable.statics.Sizes.LARGE) && title !== '') {
-    //  docked = true;
-    //  leftNavOpen = true;
-    //  showMenuIconButton = false;
-    //
-    //  styles.leftNav = {
-    //    zIndex: styles.appBar.zIndex - 1,
-    //  };
-    //  styles.root.paddingLeft = this.state.muiTheme.leftNav.width
-    //  styles.footer.paddingLeft = this.state.muiTheme.leftNav.width
-    //}
+    if (this.state.muiTheme.rawTheme.leftNavStartOpen &&
+        this.isDeviceSize(StyleResizable.statics.Sizes.LARGE) && title !== '') {
+      docked = true;
+      leftNavOpen = true;
+      showMenuIconButton = false;
+
+      styles.leftNav = {
+        zIndex: styles.appBar.zIndex - 1,
+      };
+      styles.root.paddingLeft = this.state.muiTheme.leftNav.width
+      styles.footer.paddingLeft = this.state.muiTheme.leftNav.width
+    }
 
     return (
       <div>

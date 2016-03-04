@@ -523,6 +523,10 @@ export default React.createClass({
     )
   },
 
+  ondrag(event) {
+    console.log('hello')
+  },
+
   render() {
     const duplicateDialogActions = [
       <FlatButton
@@ -570,7 +574,7 @@ export default React.createClass({
     let RowToolbarClass = this.getRowToolbarClass()
     let minWidth = 300
     return (
-      <Paper zDepth={3}>
+      <Paper zDepth={3} style={{overflowX: "hidden"}}>
         <Toolbar noGutter={true}>
           <IconButton firstChild={true} style={{marginTop: 3, marginLeft: 0, width: 40, float: 'left'}} tooltip="Run" tooltipPosition="top-center" onTouchTap={this.runAggregation}>
             <MapsDirectionsRun />
@@ -617,6 +621,7 @@ export default React.createClass({
                   onBlur={this.onBlurAggregation}
                   tabSize={2}/>
               </div>
+              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={styles.resultBar}>
                   <ToolbarTitle text={"Aggregation Result: " + this.state.aggregationResultStatus} />
@@ -653,6 +658,7 @@ export default React.createClass({
                   onBlur={this.onBlurTransformation}
                   tabSize={2}/>
               </div>
+              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={styles.resultBar}>
                   <ToolbarTitle text={"Transformation Result"} />
@@ -689,11 +695,12 @@ export default React.createClass({
                   onBlur={this.onBlurVisualization}
                   tabSize={2}/>
               </div>
+              <div style={{width: 4, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
               <div style={{minWidth: minWidth, flexGrow: 2}}>
-                <Toolbar style={styles.resultBar}>
+                <Toolbar style={{color: this.context.muiTheme.rawTheme.palette.textColor}}>
                   <ToolbarTitle text={"Visualization Preview"} />
                 </Toolbar>
-                <div id="visualizationResult"></div>
+                <Paper style={{backgroundColor: "#FFFFFF", height: 500}} id="visualizationResult" zDepth={5}></Paper>
               </div>
             </div>
           </Tab>

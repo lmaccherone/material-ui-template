@@ -28,9 +28,11 @@ export default {
     textColor: Colors.grey100,  // Most text, dropdowns, etc.
     alternateTextColor: Colors.grey900,  // Text in AppBar, Text for selected Tab, background for default button, text for primary and secondary buttons
     canvasColor: '#0B253D',  // Left nav background
+    //canvasColor: '#FFFFFF',  // Left nav background
     borderColor: Colors.grey200,  // Underline for text fields (unfocused), round button on disabled toggles, Dividers
     disabledColor: Colors.grey600,  // Hint text, text on disabled things
     pickerHeaderColor: Colors.green700,
     clockCircleColor: Colors.green700,
   },
+  leftNavStartOpen: false,
 }
