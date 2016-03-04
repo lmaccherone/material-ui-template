@@ -1,11 +1,11 @@
-import React from 'react';
-import {History} from 'react-router';
-import HomeFeature from './home-feature';
-import FullWidthSection from '../full-width-section';
+import React from 'react'
+import {History} from 'react-router'
+import HomeFeature from './home-feature'
+import FullWidthSection from '../full-width-section'
 
-import RaisedButton from 'material-ui/lib/raised-button';
-import {StylePropable, StyleResizable} from 'material-ui/lib/mixins';
-import {Colors, Spacing, Typography, lightBaseTheme} from 'material-ui/lib/styles';
+import RaisedButton from 'material-ui/lib/raised-button'
+import {StylePropable, StyleResizable} from 'material-ui/lib/mixins'
+import {Colors, Spacing, Typography, lightBaseTheme} from 'material-ui/lib/styles'
 
 const HomePage = React.createClass({
 
@@ -66,14 +66,14 @@ const HomePage = React.createClass({
         paddingTop: 16,
         marginBottom: 12,
       },
-    };
+    }
 
-    styles.h2 = this.mergeStyles(styles.h1, styles.h2);
+    styles.h2 = this.mergeStyles(styles.h1, styles.h2)
 
     if (this.isDeviceSize(StyleResizable.statics.Sizes.LARGE)) {
-      styles.tagline = this.mergeStyles(styles.tagline, styles.taglineWhenLarge);
-      styles.h1 = this.mergeStyles(styles.h1, styles.h1WhenLarge);
-      styles.h2 = this.mergeStyles(styles.h2, styles.h2WhenLarge);
+      styles.tagline = this.mergeStyles(styles.tagline, styles.taglineWhenLarge)
+      styles.h1 = this.mergeStyles(styles.h1, styles.h1WhenLarge)
+      styles.h2 = this.mergeStyles(styles.h2, styles.h2WhenLarge)
     }
 
     return (
@@ -84,7 +84,7 @@ const HomePage = React.createClass({
           <h2 style={styles.h2}>
             A Set of React Components <span style={styles.nowrap}>
             that Implement</span> <span style={styles.nowrap}>
-            Google&apos;s Material Design</span>
+            Google&aposs Material Design</span>
           </h2>
           <RaisedButton
             className="demo-button"
@@ -96,7 +96,7 @@ const HomePage = React.createClass({
           />
         </div>
       </FullWidthSection>
-    );
+    )
   },
 
   _getHomePurpose() {
@@ -116,7 +116,7 @@ const HomePage = React.createClass({
         letterSpacing: 0,
         color: Typography.textDarkBlack,
       },
-    };
+    }
 
     return (
       <FullWidthSection
@@ -126,19 +126,19 @@ const HomePage = React.createClass({
         contentType="p"
         className="home-purpose"
       >
-        Material-UI came about from our love of&nbsp;
-        <a href="http://facebook.github.io/react/">React</a> and&nbsp;
+        Material-UI came about from our love of&nbsp
+        <a href="http://facebook.github.io/react/">React</a> and&nbsp
         <a href="https://www.google.com/design/spec/material-design/introduction.html">
          Google's Material Design
-        </a>. We're currently using it on a project at&nbsp;
+        </a>. We're currently using it on a project at&nbsp
         <a href="https://www.call-em-all.com/">Call-Em-All</a> and plan on adding to it
         and making it better in the coming months.
       </FullWidthSection>
-    );
+    )
   },
 
   _getHomeFeatures() {
-    const styles = {maxWidth: 906};
+    const styles = {maxWidth: 906}
 
     return (
       <FullWidthSection useContent={true} contentStyle={styles}>
@@ -154,7 +154,7 @@ const HomePage = React.createClass({
           lastChild={true}
         />
       </FullWidthSection>
-    );
+    )
   },
 
   _getHomeContribute() {
@@ -172,7 +172,7 @@ const HomePage = React.createClass({
       button: {
         marginTop: 32,
       },
-    };
+    }
 
     return (
       <FullWidthSection useContent={true} style={styles.root}>
@@ -188,17 +188,17 @@ const HomePage = React.createClass({
           style={styles.button}
         />
       </FullWidthSection>
-    );
+    )
   },
 
   _onDemoClick() {
-    this.history.pushState(null, '/components');
+    this.history.pushState(null, '/components')
   },
 
   render() {
     const style = {
       paddingTop: Spacing.desktopKeylineIncrement,
-    };
+    }
 
     return (
       <div style={style}>
@@ -207,9 +207,9 @@ const HomePage = React.createClass({
         {this._getHomeFeatures()}
         {this._getHomeContribute()}
       </div>
-    );
+    )
   },
 
-});
+})
 
-export default HomePage;
+export default HomePage

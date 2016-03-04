@@ -83,12 +83,12 @@ const Master = React.createClass({
         minHeight: 400,
       },
       content: {
-        //margin: Spacing.desktopGutter,
-        margin: 0,
+        //margin: this.state.muiTheme.rawTheme.spacing.desktopGutter,
+        margin: 4,
       },
       contentWhenMedium: {
-        //margin: `${Spacing.desktopGutter * 2}px ${Spacing.desktopGutter * 3}px`,
-        margin: 0,
+        //margin: `${this.state.muiTheme.rawTheme.spacing.desktopGutter * 2}px ${this.state.muiTheme.rawTheme.spacing.desktopGutter * 3}px`,
+        margin: 4,
       },
       footer: {
         backgroundColor: this.state.muiTheme.rawTheme.palette.accent2Color,
@@ -159,17 +159,17 @@ const Master = React.createClass({
     let docked = false;
     let showMenuIconButton = true;
 
-    if (this.isDeviceSize(StyleResizable.statics.Sizes.LARGE) && title !== '') {
-      docked = true;
-      leftNavOpen = true;
-      showMenuIconButton = false;
-
-      styles.leftNav = {
-        zIndex: styles.appBar.zIndex - 1,
-      };
-      styles.root.paddingLeft = this.state.muiTheme.leftNav.width
-      styles.footer.paddingLeft = this.state.muiTheme.leftNav.width
-    }
+    //if (this.isDeviceSize(StyleResizable.statics.Sizes.LARGE) && title !== '') {
+    //  docked = true;
+    //  leftNavOpen = true;
+    //  showMenuIconButton = false;
+    //
+    //  styles.leftNav = {
+    //    zIndex: styles.appBar.zIndex - 1,
+    //  };
+    //  styles.root.paddingLeft = this.state.muiTheme.leftNav.width
+    //  styles.footer.paddingLeft = this.state.muiTheme.leftNav.width
+    //}
 
     return (
       <div>

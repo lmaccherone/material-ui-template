@@ -5,10 +5,10 @@ export default {
   fontFamily: 'Roboto, sans-serif',
   spacing: {
     iconSize: 24,
-    desktopGutter: 24,
+    desktopGutter: 16,
     desktopGutterMore: 32,
-    desktopGutterLess: 16,
-    desktopGutterMini: 8,
+    desktopGutterLess: 8,
+    desktopGutterMini: 4,
     desktopKeylineIncrement: 60,  // left-nav width = this * 4
     desktopDropDownMenuItemHeight: 32,
     desktopDropDownMenuFontSize: 15,

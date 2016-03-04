@@ -60,6 +60,7 @@ export default React.createClass({
       aggregationResultError: '',
       transformation: '',
       transformationResult: '',
+      visualization: '',
       duplicateButtonDisabled: true,
       duplicateDialogOpen: false,
       duplicateErrorText: '',
@@ -69,6 +70,29 @@ export default React.createClass({
       nameToRename: '',
     }
   },
+
+  componentDidMount() {
+    ReactDOM.findDOMNode(this.refs.aggregation).children[0].focus()
+    this.serverRequest = request('GET', `/api/analysis`, (err, result) => {
+      if (err) {
+        console.log('Error retrieving list of analysis. Replace with some sort of flair or toast.')
+      } else {
+        this.setState({
+          analysisNames: result.body,
+          name: result.body[0],
+        })
+        this.getAnalysis(result.body[0])
+      }
+    })
+  },
+
+  componentWillUnmount() {
+    if (this.serverRequest) {
+      this.serverRequest.abort()
+    }
+  },
+
+  // Above the tabs functionality
 
   duplicateDialogOpen() {
     this.setState({duplicateDialogOpen: true})
@@ -122,27 +146,6 @@ export default React.createClass({
     this.setState({renameDialogOpen: false})
   },
 
-  componentDidMount() {
-    ReactDOM.findDOMNode(this.refs.aggregation).children[0].focus()
-    this.serverRequest = request('GET', `/api/analysis`, (err, result) => {
-      if (err) {
-        console.log('Error retrieving list of analysis. Replace with some sort of flair or toast.')
-      } else {
-        this.setState({
-          analysisNames: result.body,
-          name: result.body[0],
-        })
-      }
-      this.getAnalysis(result.body[0])
-    })
-  },
-
-  componentWillUnmount() {
-    if (this.serverRequest) {
-      this.serverRequest.abort()
-    }
-  },
-
   // Helpers
 
   getStyles() {
@@ -164,46 +167,16 @@ export default React.createClass({
 
   // Event handlers
 
-  onChangeMode(event) {
-    let newMode
-    if (this.state.mode === 'JSON') {
-      newMode = 'YAML'
-    } else if (this.state.mode === 'YAML') {
-      newMode = 'JSON'
-    }
-    this.reformat({mode: newMode})
-  },
-
-  runAggregation() {
-    let body = yaml.safeLoad(this.refs.aggregation.editor.getValue())
-    request('POST', '/api/aggregation', body, (err, result) => {
-      if (err) {
-        this.setState({
-          aggregationResult: err.message,
-          aggregationResultStatus: err.status,
-        })
-      } else {
-        let aggregationResult
-        if (this.state.mode === 'YAML') {
-          aggregationResult = yaml.safeDump(result.body)
-        } else {
-          aggregationResult = JSON.stringify(result.body, null, 2)
-        }
-        this.setState({
-          aggregationResult: aggregationResult,
-          aggregationResultStatus: result.status,
-        })
-      }
-    })
-  },
-
-  getAnalysis(name) {
+  getAnalysis(name, callback) {
     request('GET', `/api/analysis/${name}`, (err, result) => {
       if (err) {
         console.log(err)  // TODO: Replace with flair or toast
       } else {
         let body = JSON.parse(result.body)
         this.reformat(body)
+        if (callback) {
+          callback(null, result)
+        }
       }
     })
   },
@@ -225,6 +198,7 @@ export default React.createClass({
             aggregation: '',
             transformation: '',
             transformationResult: '',
+            visualization: '',
           })
         }
       }
@@ -243,6 +217,7 @@ export default React.createClass({
       aggregationResultStatus: this.state.aggregationResultStatus,
       transformation: this.refs.transformation.editor.getValue(),
       transformationResult: this.state.transformationResult,
+      visualization: this.refs.visualization.editor.getValue(),
     }
     this.setState({state})
     return state
@@ -271,15 +246,26 @@ export default React.createClass({
     request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
 
+  onChangeMode(event) {
+    let newMode
+    if (this.state.mode === 'JSON') {
+      newMode = 'YAML'
+    } else if (this.state.mode === 'YAML') {
+      newMode = 'JSON'
+    }
+    this.reformat({mode: newMode})
+  },
+
   reformat(updates) {
     let newAggregation = updates.aggregation || this.refs.aggregation.editor.getValue()
-    let newTransformation = updates.transformation || this.refs.transformation.editor.getValue()
     let newAggregationResult = updates.aggregationResult || this.state.aggregationResult
     let newAggregationResultStatus = updates.aggregationResultStatus || this.state.aggregationResultStatus
     let newAggregationResultError = updates.aggregationResultError || this.state.aggregationResultError
+    let newTransformation = updates.transformation || this.refs.transformation.editor.getValue()
+    let newTransformationResult = updates.transformationResult || this.state.transformationResult
+    let newVisualization = updates.visualization || this.refs.visualization.editor.getValue()
     let newMode = updates.mode || this.state.mode
     let newName = updates.name || this.state.name
-    let newTransformationResult = updates.transformationResult || this.state.transformationResult
 
     let aggregationResultAsObject, aggregationAsObject, transformationResultAsObject
     try {
@@ -330,40 +316,13 @@ export default React.createClass({
       aggregationResult: newAggregationResult,
       aggregationResultStatus: newAggregationResultStatus,
       aggregationResultError: newAggregationResultError,
-      mode: newMode,
-      name: newName,
       transformation: newTransformation,
       transformationResult: newTransformationResult,
+      visualization: newVisualization,
+      mode: newMode,
+      name: newName,
     })
   },
-
-  //onTimeout() {
-  //  this.reformat({aggregation: this.newValue})
-  //  this.timeout = false
-  //  this.pastePending = false
-  //  delete this.newValue
-  //},
-  //
-  //onChangeAggregation(newValue) {
-  //  if (this.pastePending) {  // assumes the onPaste event is called before this onChange handler
-  //    // Below debounces calls to this onChange handler since pastes often result in multiple onChange events
-  //    this.newValue = newValue
-  //    if (this.timeout) {
-  //      clearTimeout(this.timeout)
-  //      this.timeout = setTimeout(this.onTimeout, 5)
-  //    } else {
-  //      this.timeout = setTimeout(this.onTimeout, 5)
-  //    }
-  //  } else {
-  //    //this.setState({
-  //    //  aggregation: newValue,
-  //    //})
-  //  }
-  //},
-  //
-  //onPaste() {
-  //  this.pastePending = true
-  //},
 
   // This is designed to debounce multiple changes. I have the timeout set to 3s
   onChangeTimeout() {
@@ -374,6 +333,7 @@ export default React.createClass({
     this.setState({
       aggregation: this.refs.aggregation.editor.getValue(),
       transformation: this.refs.transformation.editor.getValue(),
+      visualization: this.refs.visualization.editor.getValue(),
     })
     this.putAnalysis()
   },
@@ -472,15 +432,40 @@ export default React.createClass({
     return RowToolbarClass
   },
 
+  // For Aggregation
+
+  runAggregation() {
+    let body = yaml.safeLoad(this.refs.aggregation.editor.getValue())
+    request('POST', '/api/aggregation', body, (err, result) => {
+      if (err) {
+        this.setState({
+          aggregationResult: err.message,
+          aggregationResultStatus: err.status,
+        })
+      } else {
+        let aggregationResult
+        if (this.state.mode === 'YAML') {
+          aggregationResult = yaml.safeDump(result.body)
+        } else {
+          aggregationResult = JSON.stringify(result.body, null, 2)
+        }
+        this.setState({
+          aggregationResult: aggregationResult,
+          aggregationResultStatus: result.status,
+        })
+      }
+    })
+  },
+
   onBlurAggregation() {
     let newValue = this.refs.aggregation.editor.getValue()
+    this.setState({
+      aggregation: newValue
+    })
     this.putAnalysis()
-    if (this.state.aggregation !== newValue) {
-      this.setState({
-        aggregation: newValue
-      })
-    }
   },
+
+  // For Transformation
 
   evaluateTransformation() {
     let transformation = this.refs.transformation.editor.getValue()
@@ -496,12 +481,46 @@ export default React.createClass({
   onBlurTransformation() {
     let newValue = this.refs.transformation.editor.getValue()
     this.evaluateTransformation()
-    if (this.state.transformation !== newValue) {
-      this.setState({
-        transformation: newValue
-      })
-    }
+    this.setState({
+      transformation: newValue
+    })
     this.putAnalysis()
+  },
+
+  // For Visualization
+
+  evaluateVisualization() {
+    let visualization = this.refs.visualization.editor.getValue()
+    let domNode = document.getElementById("visualizationResult")
+    console.log(domNode)
+    let f = eval(CoffeeScript.compile(visualization, {bare: true}))
+    f(domNode)
+    // TODO: Implement REPL for visualization
+    //let f = eval(CoffeeScript.compile(visualization, {bare: true}))
+    //let newVisualizationResult = f(transformationResult, lumenize)
+  },
+
+  onBlurVisualization() {
+    let newValue = this.refs.visualization.editor.getValue()
+    this.evaluateVisualization()
+    this.setState({
+      visualization: newValue
+    })
+    this.putAnalysis()
+  },
+
+  // Components for render()
+  getManageDialogActions() {
+    return (
+      [
+        <FlatButton
+          label="Done"
+          primary={true}
+          onTouchTap={this.manageDialogClose}
+          style={{marginRight: 5}}
+        />,
+      ]
+    )
   },
 
   render() {
@@ -535,14 +554,7 @@ export default React.createClass({
         onTouchTap={this.renameAnalysis}
       />,
     ]
-    const manageDialogActions = [
-      <FlatButton
-        label="Done"
-        primary={true}
-        onTouchTap={this.manageDialogClose}
-        style={{marginRight: 5}}
-      />,
-    ]
+
     let styles = this.getStyles()
     let defaultToggled, mode
     if (this.state.mode === 'JSON') {
@@ -556,8 +568,9 @@ export default React.createClass({
       {field: 'name', label: 'Analysis'},  // use `hidden: true` to define hidden fields that can still be identified with valueField
     ]
     let RowToolbarClass = this.getRowToolbarClass()
+    let minWidth = 300
     return (
-      <Paper zDepth={5}>
+      <Paper zDepth={3}>
         <Toolbar noGutter={true}>
           <IconButton firstChild={true} style={{marginTop: 3, marginLeft: 0, width: 40, float: 'left'}} tooltip="Run" tooltipPosition="top-center" onTouchTap={this.runAggregation}>
             <MapsDirectionsRun />
@@ -586,60 +599,105 @@ export default React.createClass({
         </Toolbar>
         <Tabs>
           <Tab label="Aggregation">
-            <AceEditor
-              ref="aggregation"
-              mode={mode}
-              value={this.state.aggregation}
-              theme="github"
-              name="aggregation"
-              width="100%"
-              showPrintMargin={false}
-              editorProps={{$blockScrolling: Infinity}}
-              onChange={this.onChange}
-              onBlur={this.onBlurAggregation}
-              tabSize={2}/>
-            <Toolbar style={styles.resultBar}>
-              <ToolbarTitle text={"Result: " + this.state.aggregationResultStatus} />
-            </Toolbar>
-            <AceEditor
-              mode={mode}
-              value={this.state.aggregationResult}
-              theme="github"
-              name="aggregationResult"
-              width="100%"
-              readOnly={true}
-              showPrintMargin={false}
-              editorProps={{$blockScrolling: true}}
-              tabSize={2} />
-            </Tab>
-            <Tab label="Transformation">
-              <AceEditor
-                ref="transformation"
-                mode="coffee"
-                value={this.state.transformation}
-                theme="github"
-                name="transformation"
-                width="100%"
-                showPrintMargin={false}
-                editorProps={{$blockScrolling: Infinity}}
-                onChange={this.onChange}
-                onBlur={this.onBlurTransformation}
-                tabSize={2}/>
-              <Toolbar style={styles.resultBar}>
-                <ToolbarTitle text={"Result:"} />
-              </Toolbar>
-              <AceEditor
-                mode={mode}
-                value={this.state.transformationResult}
-                theme="github"
-                name="transformationResult"
-                width="100%"
-                readOnly={true}
-                showPrintMargin={false}
-                editorProps={{$blockScrolling: true}}
-                tabSize={2} />
-            </Tab>
-          </Tabs>
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+              <div style={{minWidth: minWidth, flexGrow: 1}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Aggregation Code"} />
+                </Toolbar>
+                <AceEditor
+                  ref="aggregation"
+                  mode={mode}
+                  value={this.state.aggregation}
+                  theme="github"
+                  name="aggregation"
+                  width="100%"
+                  showPrintMargin={false}
+                  editorProps={{$blockScrolling: Infinity}}
+                  onChange={this.onChange}
+                  onBlur={this.onBlurAggregation}
+                  tabSize={2}/>
+              </div>
+              <div style={{minWidth: minWidth, flexGrow: 2}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Aggregation Result: " + this.state.aggregationResultStatus} />
+                </Toolbar>
+                <AceEditor
+                  mode={mode}
+                  value={this.state.aggregationResult}
+                  theme="github"
+                  name="aggregationResult"
+                  width="100%"
+                  readOnly={true}
+                  showPrintMargin={false}
+                  editorProps={{$blockScrolling: true}}
+                  tabSize={2} />
+              </div>
+            </div>
+          </Tab>
+          <Tab label="Transformation">
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+              <div style={{minWidth: minWidth, flexGrow: 1}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Transformation Code"} />
+                </Toolbar>
+                <AceEditor
+                  ref="transformation"
+                  mode="coffee"
+                  value={this.state.transformation}
+                  theme="github"
+                  name="transformation"
+                  width="100%"
+                  showPrintMargin={false}
+                  editorProps={{$blockScrolling: Infinity}}
+                  onChange={this.onChange}
+                  onBlur={this.onBlurTransformation}
+                  tabSize={2}/>
+              </div>
+              <div style={{minWidth: minWidth, flexGrow: 2}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Transformation Result"} />
+                </Toolbar>
+                <AceEditor
+                  mode={mode}
+                  value={this.state.transformationResult}
+                  theme="github"
+                  name="transformationResult"
+                  width="100%"
+                  readOnly={true}
+                  showPrintMargin={false}
+                  editorProps={{$blockScrolling: true}}
+                  tabSize={2} />
+              </div>
+            </div>
+          </Tab>
+          <Tab label="Visualization">
+            <div style={{display: 'flex', flexWrap: 'wrap'}}>
+              <div style={{minWidth: minWidth, flexGrow: 1}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Visualization Code"} />
+                </Toolbar>
+                <AceEditor
+                  ref="visualization"
+                  mode="coffee"
+                  value={this.state.visualization}
+                  theme="github"
+                  name="visualization"
+                  width="100%"
+                  showPrintMargin={false}
+                  editorProps={{$blockScrolling: Infinity}}
+                  onChange={this.onChange}
+                  onBlur={this.onBlurVisualization}
+                  tabSize={2}/>
+              </div>
+              <div style={{minWidth: minWidth, flexGrow: 2}}>
+                <Toolbar style={styles.resultBar}>
+                  <ToolbarTitle text={"Visualization Preview"} />
+                </Toolbar>
+                <div id="visualizationResult"></div>
+              </div>
+            </div>
+          </Tab>
+        </Tabs>
         <Dialog
           title="Duplicate analysis"
           actions={duplicateDialogActions}
@@ -659,7 +717,7 @@ export default React.createClass({
         </Dialog>
         <Dialog
           title="Manage analysis"
-          actions={manageDialogActions}
+          actions={this.getManageDialogActions()}
           modal={false}
           open={this.state.manageDialogOpen}
           onRequestClose={this.manageDialogClose}
