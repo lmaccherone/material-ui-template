@@ -681,7 +681,7 @@ export default React.createClass({
               </div>
             </div>
           </Tab>
-          <Tab label="Visualization" onActive={this.evaluateVisualization}>
+          <Tab label="Visualization">
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
               <div style={{minWidth: minWidth, flexGrow: 1}}>
                 <Toolbar style={styles.resultBar}>

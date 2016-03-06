@@ -19,6 +19,7 @@ export default React.createClass({
     rowToolbarWidth: React.PropTypes.number,
     height: React.PropTypes.string,
     baseCellStyle: React.PropTypes.object,
+    baseHeaderStyle: React.PropTypes.object,
     cellStyleCallback: React.PropTypes.func,
   },
 
@@ -116,10 +117,11 @@ export default React.createClass({
     })
   },
 
-  getCellStyle(value){
-    let baseCellStyle = this.props.baseCellStyle || {}
+  getCellStyle(columnStyle, value, field){
+    let startingStyle = this.props.baseCellStyle || {}
+    let baseCellStyle = this.mergeStyles(startingStyle, columnStyle)
     if (this.props.cellStyleCallback) {
-      return this.mergeStyles(baseCellStyle, this.props.cellStyleCallback(value))
+      return this.mergeStyles(baseCellStyle, this.props.cellStyleCallback(value, field))
     } else {
       return baseCellStyle
     }
@@ -139,7 +141,7 @@ export default React.createClass({
           <TableRow key={0} style={{color: "#000000", backgroundColor: "#CCCCCC"}}>
             {columns.map((field, index) => {
               if (! field.hidden) {
-                let sortIcon
+                let sortIcon, columnStyle
                 if (field.field === this.state.sort.field) {
                   if (this.state.sort.ascending) {
                     sortIcon = <NavigationArrowDropDown viewBox="0 0 17 17"/>
@@ -147,8 +149,13 @@ export default React.createClass({
                     sortIcon = <NavigationArrowDropUp viewBox="0 0 17 17"/>
                   }
                 }
+                if (field.style) {
+                  columnStyle = this.mergeStyles(field.style, this.props.baseHeaderStyle)
+                } else {
+                  columnStyle = this.mergeStyles({fontSize: "16"}, this.props.baseHeaderStyle)
+                }
                 return (
-                  <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={{fontSize: "16"}}
+                  <TableHeaderColumn onTouchTap={this.onHeaderTouch} key={index} style={columnStyle}
                                      tooltip={field.tooltip}>
                     <div style={{height: "50px", lineHeight: "50px"}}>{field.label}{sortIcon}</div>
                   </TableHeaderColumn>
@@ -171,9 +178,15 @@ export default React.createClass({
                 selected={detailRow.selected}
                 style={{color: "#000000"}} >
                 {columns.map((field, index) => {
+                  let columnStyle
                   if (! field.hidden) {
+                    if (field.style) {
+                      columnStyle = field.style
+                    } else {
+                      columnStyle = {fontSize: "16"}
+                    }
                     return (
-                      <TableRowColumn style={this.getCellStyle(detailRow[field.field])} selectable={false}
+                      <TableRowColumn style={this.getCellStyle(columnStyle, detailRow[field.field], field.field)} selectable={false}
                                       key={field.field}>{detailRow[field.field]}</TableRowColumn>
                     )
                   }
