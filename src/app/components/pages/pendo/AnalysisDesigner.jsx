@@ -240,6 +240,11 @@ export default React.createClass({
         analysisNames: newAnalysisNames,
       })
     }
+    if (this.putCallback) {
+      this.putCallback()
+      delete this.putCallback
+    }
+    console.timeEnd('AnalysisDesigner.putAnalysis')
   },
 
   postAnalysis(newName) {
@@ -247,7 +252,9 @@ export default React.createClass({
     request('POST', `/api/analysis`, state, this.putOrPostAnalysisCallback)
   },
 
-  putAnalysis() {
+  putAnalysis(callback) {
+    console.time('AnalysisDesigner.putAnalysis')
+    this.putCallback = callback
     let state = this.getStateToPutOrPost(this.state.name)
     request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
@@ -496,26 +503,39 @@ export default React.createClass({
   // For Visualization
 
   evaluateVisualization() {
+    console.time('AnalysisDesigner.evaluateVisualization')
+    console.time('AnalysisDesigner.evaluateVisualization-beforeCompile')
     this.refs.visualization.editor.session.setUseWorker(false)
     let transformationResult = yaml.safeLoad(this.state.transformationResult)
     let visualization = this.refs.visualization.editor.getValue()
     let domNode = document.getElementById("visualizationResult")
+    console.timeEnd('AnalysisDesigner.evaluateVisualization-beforeCompile')
+    console.time('AnalysisDesigner.evaluateVisualization-compile')
     let cs = transformCJSX(visualization, {})
     let js = CoffeeScript.compile(cs, {bare: true})
     // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
     //import jsSyntaxTransform from 'coffee-react-jstransform'
     //js = jsSyntaxTransform(js)
+    console.timeEnd('AnalysisDesigner.evaluateVisualization-compile')
+    console.time('AnalysisDesigner.evaluateVisualization-eval')
     let f = eval(js)
-    f(transformationResult, domNode, pkgs)
+    console.timeEnd('AnalysisDesigner.evaluateVisualization-eval')
+    console.time('AnalysisDesigner.evaluateVisualization-callingF')
+    let Visualization = f(transformationResult, pkgs)
+    console.timeEnd('AnalysisDesigner.evaluateVisualization-callingF')
+    console.timeEnd('AnalysisDesigner.evaluateVisualization')
   },
 
   onBlurVisualization() {
+    console.time('AnalysisDesigner.onBlurVisualization')
     let newValue = this.refs.visualization.editor.getValue()
     this.evaluateVisualization()
     this.setState({
       visualization: newValue
     })
-    this.putAnalysis()
+    this.putAnalysis(() =>
+      console.time('AnalysisDesigner.onBlurVisualization')
+    )
   },
 
   // Components for render()

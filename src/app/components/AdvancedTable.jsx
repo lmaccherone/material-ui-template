@@ -94,6 +94,7 @@ export default React.createClass({
   },
 
   getInitialState() {
+    console.time('AdvancedTable.getInitialState')
     let data = this.transformData(this.props.data)
     let sort = {
       field: this.props.initialSortField || this.props.columns[0].field,
@@ -103,6 +104,7 @@ export default React.createClass({
     if (sort.ascending) {
       sortedData.reverse()
     }
+    console.timeEnd('AdvancedTable.getInitialState')
     return {sort, sortedData}
   },
 
@@ -129,7 +131,8 @@ export default React.createClass({
 
   render() {
     let columns = this.props.columns
-    return (
+    console.time('AdvancedTable.render')
+    let output = (
       <Table
         fixedHeader={true}
         fixedFooter={false}
@@ -172,7 +175,8 @@ export default React.createClass({
           style={{backgroundColor: '#FFFFFF', color: "#AAAAAA"}}
         >
           {this.state.sortedData.map( (detailRow, index) => {
-            return (
+            //console.time('oneRow')
+            let row = (
               <TableRow
                 key={index}
                 selected={detailRow.selected}
@@ -185,9 +189,10 @@ export default React.createClass({
                     } else {
                       columnStyle = {fontSize: "16"}
                     }
+                    let fieldValue = detailRow[field.field] || ""
                     return (
                       <TableRowColumn style={this.getCellStyle(columnStyle, detailRow[field.field], field.field)} selectable={false}
-                                      key={field.field}>{detailRow[field.field]}</TableRowColumn>
+                                      key={field.field}><div>{fieldValue}</div></TableRowColumn>
                     )
                   }
                 })}
@@ -196,10 +201,14 @@ export default React.createClass({
                 </TableRowColumn>
               </TableRow>
             )
+            //console.timeEnd('oneRow')
+            return row
           })}
         </TableBody>
       </Table>
     )
+    console.timeEnd('AdvancedTable.render')
+    return output
   }
 
 })
