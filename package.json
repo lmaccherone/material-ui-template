@@ -19,6 +19,7 @@
     "android:setup-port": "adb reverse tcp:8081 tcp:8081"
   },
   "dependencies": {
+    "async": "^1.5.2",
     "babel-core": "^6.3.21",
     "babel-polyfill": "^6.3.14",
     "brace": "^0.7.0",

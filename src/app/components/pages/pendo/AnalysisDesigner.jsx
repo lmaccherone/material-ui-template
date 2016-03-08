@@ -32,6 +32,7 @@ import 'brace/theme/github'
 
 import yaml from 'js-yaml'
 import _ from 'lodash'
+import * as async from 'async'
 import CoffeeScript from '../../../coffee-script'
 import transformCJSX from 'coffee-react-transform'
 
@@ -41,7 +42,7 @@ import lumenize from '../../../lumenize'
 import request from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
 
-let pkgs = {_, AdvancedTable, lumenize, ReactDataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React}
+let pkgs = {_, AdvancedTable, lumenize, DataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React, async}
 
 export default React.createClass({
 
@@ -505,43 +506,26 @@ export default React.createClass({
   // For Visualization
 
   evaluateVisualization() {
-    console.log('start of evaluateVisualization()')
-    console.time('AnalysisDesigner.evaluateVisualization')
-    console.time('AnalysisDesigner.evaluateVisualization-beforeCompile')
     this.refs.visualization.editor.session.setUseWorker(false)
     let transformationResult = yaml.safeLoad(this.state.transformationResult)
     let visualization = this.refs.visualization.editor.getValue()
-    console.timeEnd('AnalysisDesigner.evaluateVisualization-beforeCompile')
-    console.time('AnalysisDesigner.evaluateVisualization-compile')
     let cs = transformCJSX(visualization, {})
     let js = CoffeeScript.compile(cs, {bare: true})
     // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
     //import jsSyntaxTransform from 'coffee-react-jstransform'
     //js = jsSyntaxTransform(js)
-    console.timeEnd('AnalysisDesigner.evaluateVisualization-compile')
-    console.time('AnalysisDesigner.evaluateVisualization-eval')
     let getVisualization = eval(js)
-    console.timeEnd('AnalysisDesigner.evaluateVisualization-eval')
-    console.time('AnalysisDesigner.evaluateVisualization-callingF')
-    console.log('about to call getVisualization()')
     let Visualization = getVisualization(pkgs)
-    console.log('done calling getVisualization()')
-    console.log(Visualization)
     this.setState({Visualization})
-    console.timeEnd('AnalysisDesigner.evaluateVisualization-callingF')
-    console.timeEnd('AnalysisDesigner.evaluateVisualization')
   },
 
   onBlurVisualization() {
-    console.time('AnalysisDesigner.onBlurVisualization')
     let newValue = this.refs.visualization.editor.getValue()
     this.evaluateVisualization()
     this.setState({
       visualization: newValue
     })
-    this.putAnalysis(() =>
-      console.time('AnalysisDesigner.onBlurVisualization')
-    )
+    this.putAnalysis()
   },
 
   // Components for render()
