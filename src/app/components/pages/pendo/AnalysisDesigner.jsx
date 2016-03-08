@@ -21,6 +21,8 @@ import {ActionDelete, ActionSettings, ContentAddCircle, MapsDirectionsRun} from 
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
 
+import DataGrid from 'react-data-grid'
+
 import brace from 'brace'
 import AceEditor from 'react-ace'
 import 'brace/mode/coffee'
@@ -39,7 +41,7 @@ import lumenize from '../../../lumenize'
 import request from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
 
-let pkgs = {_, AdvancedTable, lumenize, muiStyles, muiSVGIcons, mui, ReactDOM, React}
+let pkgs = {_, AdvancedTable, lumenize, ReactDataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React}
 
 export default React.createClass({
 
@@ -503,12 +505,12 @@ export default React.createClass({
   // For Visualization
 
   evaluateVisualization() {
+    console.log('start of evaluateVisualization()')
     console.time('AnalysisDesigner.evaluateVisualization')
     console.time('AnalysisDesigner.evaluateVisualization-beforeCompile')
     this.refs.visualization.editor.session.setUseWorker(false)
     let transformationResult = yaml.safeLoad(this.state.transformationResult)
     let visualization = this.refs.visualization.editor.getValue()
-    let domNode = document.getElementById("visualizationResult")
     console.timeEnd('AnalysisDesigner.evaluateVisualization-beforeCompile')
     console.time('AnalysisDesigner.evaluateVisualization-compile')
     let cs = transformCJSX(visualization, {})
@@ -518,10 +520,14 @@ export default React.createClass({
     //js = jsSyntaxTransform(js)
     console.timeEnd('AnalysisDesigner.evaluateVisualization-compile')
     console.time('AnalysisDesigner.evaluateVisualization-eval')
-    let f = eval(js)
+    let getVisualization = eval(js)
     console.timeEnd('AnalysisDesigner.evaluateVisualization-eval')
     console.time('AnalysisDesigner.evaluateVisualization-callingF')
-    let Visualization = f(transformationResult, pkgs)
+    console.log('about to call getVisualization()')
+    let Visualization = getVisualization(pkgs)
+    console.log('done calling getVisualization()')
+    console.log(Visualization)
+    this.setState({Visualization})
     console.timeEnd('AnalysisDesigner.evaluateVisualization-callingF')
     console.timeEnd('AnalysisDesigner.evaluateVisualization')
   },
@@ -598,6 +604,12 @@ export default React.createClass({
     ]
     let RowToolbarClass = this.getRowToolbarClass()
     let minWidth = 300
+    let transformationResultAsObject
+    try {
+      transformationResultAsObject = yaml.safeLoad(this.state.transformationResult)
+    } catch (e) {
+      transformationResultAsObject = {}
+    }
     return (
       <Paper zDepth={3} style={{overflowX: "hidden"}}>
         <Toolbar noGutter={true}>
@@ -725,7 +737,14 @@ export default React.createClass({
                 <Toolbar style={{color: this.context.muiTheme.rawTheme.palette.textColor}}>
                   <ToolbarTitle text={"Visualization Preview"} />
                 </Toolbar>
-                <Paper style={{backgroundColor: "#FFFFFF", height: 500}} id="visualizationResult" zDepth={5}></Paper>
+                <Paper style={{backgroundColor: "#FFFFFF", height: 500}} id="visualizationResult" zDepth={5}>
+                  {React.createElement(
+                    this.state.Visualization || "div", {
+                      parent: this,
+                      transformationResult: transformationResultAsObject,
+                    }
+                  )}
+                </Paper>
               </div>
             </div>
           </Tab>

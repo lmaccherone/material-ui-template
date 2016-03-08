@@ -32,6 +32,7 @@
     "lumenize": "^1.0.4",
     "material-ui": "^0.14.4",
     "react-ace": "^3.1.0",
+    "react-data-grid": "^0.14.15",
     "react-highcharts": "^6.0.0",
     "rfc6902-json-diff": "^0.1.2",
     "superagent": "^1.7.2",

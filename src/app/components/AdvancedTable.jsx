@@ -197,7 +197,7 @@ export default React.createClass({
                   }
                 })}
                 <TableRowColumn key="rowActions" style={{width: this.props.rowToolbarWidth}}>
-                  {React.createElement(this.props.RowToolbarClass, {parent: this.props.parent, value: detailRow[this.props.valueField]})}
+                  {React.createElement(this.props.RowToolbarClass || "div", {parent: this.props.parent, value: detailRow[this.props.valueField]})}
                 </TableRowColumn>
               </TableRow>
             )
