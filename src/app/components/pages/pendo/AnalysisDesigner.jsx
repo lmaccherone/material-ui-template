@@ -21,8 +21,6 @@ import {ActionDelete, ActionSettings, ContentAddCircle, MapsDirectionsRun} from 
 const {StylePropable, StyleResizable} = Mixins
 import {Colors} from 'material-ui/lib/styles'
 
-import DataGrid from 'react-data-grid'
-
 import brace from 'brace'
 import AceEditor from 'react-ace'
 import 'brace/mode/coffee'
@@ -32,21 +30,14 @@ import 'brace/theme/github'
 
 import yaml from 'js-yaml'
 import _ from 'lodash'
-import * as async from 'async'
-import CoffeeScript from '../../../coffee-script'
-import transformCJSX from 'coffee-react-transform'
-
-//import lumenize from 'lumenize'  // Got webpack config to work as long as I use the npm version of Lumenize, but get runtime error in timezone-js.js: Can't find
-import lumenize from '../../../lumenize'
 
 import request from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
-
-let pkgs = {_, AdvancedTable, lumenize, DataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React, async}
+import helpers from './analysisHelpers'
 
 export default React.createClass({
 
-  // Boilderplate and React lifecycle methods
+  // Boilerplate and React lifecycle methods
 
   propTypes: {
     onChangeMuiTheme: React.PropTypes.func,
@@ -177,15 +168,10 @@ export default React.createClass({
   // Event handlers
 
   getAnalysis(name, callback) {
-    request('GET', `/api/analysis/${name}`, (err, result) => {
-      if (err) {
-        console.log(err)  // TODO: Replace with flair or toast
-      } else {
-        let body = JSON.parse(result.body)
-        this.reformat(body)
-        if (callback) {
-          callback(null, result)
-        }
+    helpers.getAnalysis(name, (err, result) => {
+      this.reformat(result.body)
+      if (callback) {
+        callback(null, result)
       }
     })
   },
@@ -247,7 +233,6 @@ export default React.createClass({
       this.putCallback()
       delete this.putCallback
     }
-    console.timeEnd('AnalysisDesigner.putAnalysis')
   },
 
   postAnalysis(newName) {
@@ -256,7 +241,6 @@ export default React.createClass({
   },
 
   putAnalysis(callback) {
-    console.time('AnalysisDesigner.putAnalysis')
     this.putCallback = callback
     let state = this.getStateToPutOrPost(this.state.name)
     request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
@@ -451,8 +435,8 @@ export default React.createClass({
   // For Aggregation
 
   runAggregation() {
-    let body = yaml.safeLoad(this.refs.aggregation.editor.getValue())
-    request('POST', '/api/aggregation', body, (err, result) => {
+    let aggregation = yaml.safeLoad(this.refs.aggregation.editor.getValue())
+    helpers.runAggregation(aggregation, (err, result) => {
       if (err) {
         this.setState({
           aggregationResult: err.message,
@@ -489,8 +473,7 @@ export default React.createClass({
     if (! aggregationResult) {
       console.error('Failed to parse aggregationResult')
     }
-    let f = eval(CoffeeScript.compile(transformation, {bare: true}))
-    let newTransformationResult = f(aggregationResult, lumenize)
+    let newTransformationResult = helpers.evaluateTransformation(transformation, aggregationResult)
     this.reformat({transformationResult: newTransformationResult})
   },
 
@@ -507,15 +490,9 @@ export default React.createClass({
 
   evaluateVisualization() {
     this.refs.visualization.editor.session.setUseWorker(false)
-    let transformationResult = yaml.safeLoad(this.state.transformationResult)
     let visualization = this.refs.visualization.editor.getValue()
-    let cs = transformCJSX(visualization, {})
-    let js = CoffeeScript.compile(cs, {bare: true})
-    // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
-    //import jsSyntaxTransform from 'coffee-react-jstransform'
-    //js = jsSyntaxTransform(js)
-    let getVisualization = eval(js)
-    let Visualization = getVisualization(pkgs)
+    let transformationResult = yaml.safeLoad(this.state.transformationResult)
+    let Visualization = helpers.getVisualization(visualization, transformationResult)
     this.setState({Visualization})
   },
 
