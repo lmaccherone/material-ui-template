@@ -15,6 +15,7 @@ import Config from './components/pages/page-types/config'
 
 import EventRate from './components/pages/pendo/EventRate'
 import AnalysisDesigner from './components/pages/pendo/AnalysisDesigner'
+import Analysis from './components/pages/pendo/Analysis'
 
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
@@ -35,7 +36,8 @@ let appRoutes = {
         {name: "Blank", path: "blank", component: Blank},
       ]},
     ]},
-    {name: "Pendo", path: "pendo", redirectTo: "/pendo/event-rate", childRoutes: [
+    {name: "Pendo", path: "pendo", redirectTo: "/pendo/churn", childRoutes: [
+      {name: "Churn", path: "churn", component: Analysis, analysisName: "Average Daily Visitors"},
       {name: "Event Rate", path: "event-rate", component: EventRate},
       {name: "Analysis Designer", path: "analysis-designer", component: AnalysisDesigner},
     ]},
