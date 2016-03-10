@@ -5,7 +5,7 @@ import _ from 'lodash'
 import * as async from 'async'
 import CoffeeScript from '../../../coffee-script'
 import transformCJSX from 'coffee-react-transform'
-import DataGrid from 'react-data-grid'
+import ReactDataGrid from 'react-data-grid'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import mui from 'material-ui'
@@ -14,7 +14,7 @@ import * as muiStyles from 'material-ui/lib/styles'
 
 import AdvancedTable from '../../AdvancedTable'  // Consider removing now that we have DataGrid
 
-let pkgs = {_, AdvancedTable, lumenize, DataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React, async}
+let pkgs = {_, AdvancedTable, lumenize, ReactDataGrid, muiStyles, muiSVGIcons, mui, ReactDOM, React, async}
 
 export default {
 

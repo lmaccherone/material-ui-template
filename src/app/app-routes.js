@@ -37,7 +37,7 @@ let appRoutes = {
       ]},
     ]},
     {name: "Pendo", path: "pendo", redirectTo: "/pendo/churn", childRoutes: [
-      {name: "Churn", path: "churn", component: Analysis, analysisName: "Average Daily Visitors"},
+      {name: "Churn", path: "churn", component: Analysis, analysisName: "Churn"},
       {name: "Event Rate", path: "event-rate", component: EventRate},
       {name: "Analysis Designer", path: "analysis-designer", component: AnalysisDesigner},
     ]},

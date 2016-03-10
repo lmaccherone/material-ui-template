@@ -676,7 +676,7 @@ export default React.createClass({
           </Tab>
           <Tab label="Visualization">
             <div style={{display: 'flex', flexWrap: 'wrap'}}>
-              <div style={{minWidth: minWidth, flexGrow: 1}}>
+              <div style={{minWidth: minWidth, flexGrow: 2}}>
                 <Toolbar style={styles.resultBar}>
                   <ToolbarTitle text={"Visualization Code"} />
                 </Toolbar>
@@ -694,7 +694,7 @@ export default React.createClass({
                   tabSize={2}/>
               </div>
               <div style={{width: 1, backgroundColor: "#CCCCCC", flexGrow: 0}}></div>
-              <div style={{minWidth: minWidth, flexGrow: 2}}>
+              <div style={{minWidth: minWidth, flexGrow: 0}}>
                 <Toolbar style={{color: this.context.muiTheme.rawTheme.palette.textColor}}>
                   <ToolbarTitle text={"Visualization Preview"} />
                 </Toolbar>
