@@ -568,10 +568,14 @@ export default React.createClass({
     let RowToolbarClass = this.getRowToolbarClass()
     let minWidth = 300
     let transformationResultAsObject
-    try {
-      transformationResultAsObject = yaml.safeLoad(this.state.transformationResult)
-    } catch (e) {
-      transformationResultAsObject = {}
+    if (_.isPlainObject(this.state.transformationResult)) {
+      transformationResultAsObject = this.state.transformationResult
+    } else {
+      try {
+        transformationResultAsObject = yaml.safeLoad(this.state.transformationResult)
+      } catch (e) {
+        transformationResultAsObject = {}
+      }
     }
     return (
       <Paper zDepth={3} style={{overflowX: "hidden"}}>
