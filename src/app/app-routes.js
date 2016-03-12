@@ -12,6 +12,7 @@ import MarkdownPage from './components/pages/page-types/MarkdownPage'
 import Showcase from './components/pages/page-types/Showcase'
 import Blank from './components/pages/page-types/blank'
 import Config from './components/pages/page-types/config'
+import VariableRows from './components/pages/page-types/variableRows'
 
 import EventRate from './components/pages/pendo/EventRate'
 import AnalysisDesigner from './components/pages/pendo/AnalysisDesigner'
@@ -32,6 +33,7 @@ let appRoutes = {
       {name: "Config", path: "config", component: Config, config: {a:1}},
       {name: "Config 2", path: "config2", component: Config, config: {b:2}},
       {name: "Hidden", hidden: true, path: "hidden", component: Blank},
+      {name: "Using map()", path: "map", component: VariableRows},
       {name: "3 Level Menu", path: "3-level", childRoutes: [
         {name: "Blank", path: "blank", component: Blank},
       ]},

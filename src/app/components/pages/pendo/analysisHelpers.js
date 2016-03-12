@@ -5,7 +5,7 @@ import _ from 'lodash'
 import * as async from 'async'
 import CoffeeScript from '../../../coffee-script'
 import transformCJSX from 'coffee-react-transform'
-import ReactDataGrid from 'react-data-grid'
+import ReactDataGrid from 'react-data-grid/addons'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import mui from 'material-ui'
@@ -37,20 +37,33 @@ export default {
   },
 
   evaluateTransformation(transformation, aggregationResult) {
-    let f = eval(CoffeeScript.compile(transformation, {bare: true}))
-    let newTransformationResult = f(aggregationResult, lumenize)
+    let compiled, newTransformationResult
+    try {
+      compiled = CoffeeScript.compile(transformation, {bare: true})
+      let f = eval(compiled)
+      newTransformationResult = f(aggregationResult, lumenize)
+    } catch (e) {
+      console.log(e)
+      newTransformationResult = e.toString()
+    }
+
     return newTransformationResult
   },
 
   getVisualization(visualization, transformationResult) {
-    let cs = transformCJSX(visualization, {})
-    let js = CoffeeScript.compile(cs, {bare: true})
-    // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
-    //import jsSyntaxTransform from 'coffee-react-jstransform'
-    //js = jsSyntaxTransform(js)
-    let getVisualization = eval(js)
-    let Visualization = getVisualization(pkgs)
-    return Visualization
+    try {
+      let cs = transformCJSX(visualization, {})
+      let js = CoffeeScript.compile(cs, {bare: true})
+      // Not sure what jsSyntaxTransform does. It was optional in example code and I've commented out for now.
+      //import jsSyntaxTransform from 'coffee-react-jstransform'
+      //js = jsSyntaxTransform(js)
+      let getVisualization = eval(js)
+      let Visualization = getVisualization(pkgs)
+      return Visualization
+    } catch (e) {
+      console.log(e)
+      return e.toString()
+    }
   },
 
 
