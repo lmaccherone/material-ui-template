@@ -117,18 +117,20 @@ export default React.createClass({
       if (err) {
         console.log('Error getting analysis during rename. Replace with some sort of flair or toast.')
       } else {
-        let stateAsObject = yaml.safeLoad(result.body)
+        let stateAsObject = result.body
         stateAsObject.name = newName
         request('POST', `/api/analysis`, stateAsObject, (err, result) => {
           if (err) {
             console.log('Error posting during rename. Replace with some sort of flair or toast.')
           } else {
-            this.deleteAnalysis(oldName)
+            let newAnalysisNames = _.sortBy(_.union(this.state.analysisNames, [newName]))
             this.setState({
+              analysisNames: newAnalysisNames,
               renameDialogOpen: false,
               renameButtonDisabled: false,
               nameToRename: '',
             })
+            this.deleteAnalysis(oldName)
           }
         })
       }
