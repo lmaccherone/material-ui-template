@@ -26,12 +26,12 @@ export default React.createClass({
   componentDidMount() {
     let aggregation, transformation, visualization
     helpers.getAnalysis(this.props.route.analysisName, (err, result) => {
-      aggregation = yaml.safeLoad(result.body.aggregation)
-      transformation = result.body.transformation
-      visualization = result.body.visualization
+      aggregation = yaml.safeLoad(result.aggregation)
+      transformation = result.transformation
+      visualization = result.visualization
       this.setState({content: "Running aggregation..."})
       helpers.runAggregation(aggregation, (err, result) => {
-        let aggregationResult = result.body
+        let aggregationResult = result
         this.setState({content: "Evaluating transformation..."})
         let transformationResult
         try {

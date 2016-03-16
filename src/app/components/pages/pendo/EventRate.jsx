@@ -9,7 +9,7 @@ import {ActionLaunch} from 'material-ui/lib/svg-icons'
 import {Mixins} from 'material-ui'
 const {StylePropable, StyleResizable} = Mixins
 
-import request from '../../../api-request'
+import apiRequest from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
 
 export default React.createClass({
@@ -97,11 +97,11 @@ export default React.createClass({
   },
 
   componentDidMount() {
-    this.serverRequest = request('GET', '/api/subscription', (err, result) => {
+    this.serverRequest = apiRequest('GET', '/api/subscription', (err, result) => {
       if (err) {
         console.log(err)
       } else {
-        let histogram = result.body.histogram
+        let histogram = result.histogram
         let categories = []
         let data = []
         for (let row of histogram) {

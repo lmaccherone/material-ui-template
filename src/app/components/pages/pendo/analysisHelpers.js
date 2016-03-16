@@ -1,4 +1,4 @@
-import request from '../../../api-request'
+import apiRequest from '../../../api-request'
 //import lumenize from 'lumenize'  // Got webpack config to work as long as I use the npm version of Lumenize, but get runtime error in timezone-js.js: Can't find
 import lumenize from '../../../lumenize'
 import _ from 'lodash'
@@ -19,7 +19,7 @@ let pkgs = {_, AdvancedTable, lumenize, ReactDataGrid, muiStyles, muiSVGIcons, m
 export default {
 
   getAnalysis(name, callback) {
-    request('GET', `/api/analysis/${name}`, (err, result) => {
+    apiRequest('GET', `/api/analysis/${name}`, (err, result) => {
       if (err) {
         console.log(err)
       }
@@ -28,7 +28,7 @@ export default {
   },
 
   runAggregation(aggregation, callback) {
-    request('POST', '/api/aggregation', aggregation, (err, result) => {
+    apiRequest('POST', '/api/aggregation', aggregation, (err, result) => {
       if (err) {
         console.log(err)
       }

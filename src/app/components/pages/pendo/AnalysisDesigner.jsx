@@ -31,7 +31,7 @@ import 'brace/theme/github'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 
-import request from '../../../api-request'
+import apiRequest from '../../../api-request'
 import AdvancedTable from '../../AdvancedTable'
 import helpers from './analysisHelpers'
 
@@ -81,15 +81,15 @@ export default React.createClass({
 
   componentDidMount() {
     ReactDOM.findDOMNode(this.refs.aggregation).children[0].focus()
-    this.serverRequest = request('GET', `/api/analysis`, (err, result) => {
+    this.serverRequest = apiRequest('GET', `/api/analysis`, (err, result) => {
       if (err) {
         console.log('Error retrieving list of analysis. Replace with some sort of flair or toast.')
       } else {
         this.setState({
-          analysisNames: result.body,
-          name: result.body[0],
+          analysisNames: result,
+          name: result[0],
         })
-        this.getAnalysis(result.body[0])
+        this.getAnalysis(result[0])
       }
     })
   },
@@ -121,13 +121,13 @@ export default React.createClass({
   renameAnalysis() {
     let newName = _.trim(this.refs.renameName.getValue())
     let oldName = this.state.nameToRename
-    request('GET', `/api/analysis/${oldName}`, (err, result) => {
+    apiRequest('GET', `/api/analysis/${oldName}`, (err, result) => {
       if (err) {
         console.log('Error getting analysis during rename. Replace with some sort of flair or toast.')
       } else {
-        let stateAsObject = result.body
+        let stateAsObject = result
         stateAsObject.name = newName
-        request('POST', `/api/analysis`, stateAsObject, (err, result) => {
+        apiRequest('POST', `/api/analysis`, stateAsObject, (err, result) => {
           if (err) {
             console.log('Error posting during rename. Replace with some sort of flair or toast.')
           } else {
@@ -179,7 +179,7 @@ export default React.createClass({
 
   getAnalysis(name, callback) {
     helpers.getAnalysis(name, (err, result) => {
-      this.reformat(result.body)
+      this.reformat(result)
       if (callback) {
         callback(null, result)
       }
@@ -187,7 +187,7 @@ export default React.createClass({
   },
 
   deleteAnalysis(name) {
-    request('DELETE', `/api/analysis/${name}`, (err, result) => {
+    apiRequest('DELETE', `/api/analysis/${name}`, (err, result) => {
       if (err) {
         console.log(err)  // TODO: Replace with flair or toast
       } else {
@@ -232,7 +232,7 @@ export default React.createClass({
     if (err) {
       console.log(err)  // TODO: Replace with flair or toast
     } else {
-      let newName = result.body.name
+      let newName = result.name
       let newAnalysisNames = _.sortBy(_.union(this.state.analysisNames, [newName]))
       this.setState({
         name: newName,
@@ -247,13 +247,13 @@ export default React.createClass({
 
   postAnalysis(newName) {
     let state = this.getStateToPutOrPost(newName)
-    request('POST', `/api/analysis`, state, this.putOrPostAnalysisCallback)
+    apiRequest('POST', `/api/analysis`, state, this.putOrPostAnalysisCallback)
   },
 
   putAnalysis(callback) {
     this.putCallback = callback
     let state = this.getStateToPutOrPost(this.state.name)
-    request('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
+    apiRequest('PUT', `/api/analysis/${state.name}`, state, this.putOrPostAnalysisCallback )
   },
 
   onChangeMode(event) {
@@ -455,9 +455,9 @@ export default React.createClass({
       } else {
         let aggregationResult
         if (this.state.mode === 'YAML') {
-          aggregationResult = yaml.safeDump(result.body)
+          aggregationResult = yaml.safeDump(result)
         } else {
-          aggregationResult = JSON.stringify(result.body, null, 2)
+          aggregationResult = JSON.stringify(result, null, 2)
         }
         this.setState({
           aggregationResult: aggregationResult,

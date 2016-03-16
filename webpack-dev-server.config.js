@@ -64,10 +64,11 @@ const config = {
     new webpack.HotModuleReplacementPlugin(),
     //Allows error warninggs but does not stop compiling. Will remove when eslint is added
     new webpack.NoErrorsPlugin(),
-    new webpack.ProvidePlugin({
-      'Promise': 'es6-promise',
-      'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch',
-    }),
+    // The below was commented out after I found out that the fetch polyfill didn't work on Safari
+    //new webpack.ProvidePlugin({
+    //  'Promise': 'es6-promise',
+    //  'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch',
+    //}),
   ],
   externals: {
     fs: 'js', // To remove once https://github.com/benjamn/recast/pull/238 is released

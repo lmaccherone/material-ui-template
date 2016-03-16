@@ -14,7 +14,7 @@ module.exports = function(method, endpoint, body, callback) {
       console.error(err)
     }
     if (callback) {  // Calling even if there is an error so calling page knows why
-      return callback(err, response)
+      return callback(err, response.body)
     }
   }
   )

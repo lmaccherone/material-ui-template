@@ -16,7 +16,7 @@ import FullWidthSection from './full-width-section'
 
 import CustomBaseTheme from '../customBaseTheme'
 import appRoutes from '../app-routes'
-import apiFetch from '../api-fetch'
+import apiRequest from '../api-request'
 
 const githubButton = (
   <IconButton
@@ -83,7 +83,7 @@ const Master = React.createClass({
   setPendoContext() {  // TODO: Upgrade this to work in production. This and getInitialState are the only places that should need to change.
     let {pendoContext} = this.state
     if (pendoContext.user.isSuperUser) {
-      apiFetch('get', '/api/super/subscription', (err, response) => {
+      apiRequest('get', '/api/super/subscription', (err, response) => {
         if (err) {
           throw new Error(JSON.stringify(err))
         } else {

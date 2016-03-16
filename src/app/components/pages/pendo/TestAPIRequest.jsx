@@ -4,7 +4,7 @@ import React from 'react'
 import {Mixins} from 'material-ui'
 const {StylePropable, StyleResizable} = Mixins
 
-import apiFetch from '../../../api-fetch'
+import apiRequest from '../../../api-request'
 import _ from 'lodash'
 
 export default React.createClass({
@@ -31,7 +31,7 @@ export default React.createClass({
     let body = {
 
     }
-    apiFetch('get', '/api/super/subscription', (err, response) => {
+    apiRequest('get', '/api/super/subscription', (err, response) => {
       if (err) {
         this.setState({
           result: JSON.stringify(err, null, 2)
