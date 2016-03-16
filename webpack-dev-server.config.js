@@ -1,7 +1,15 @@
-const webpack = require('webpack');
-const path = require('path');
-const buildPath = path.resolve(__dirname, 'src/www');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack')
+const path = require('path')
+const buildPath = path.resolve(__dirname, 'src/www')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+const cookie = {
+  name: "pendo.sess",
+  value: process.env.PENDO_SESS
+}
+const header = {
+  Cookie: cookie.name + "=" + cookie.value
+}
 
 const config = {
   //Entry point to the project
@@ -56,6 +64,10 @@ const config = {
     new webpack.HotModuleReplacementPlugin(),
     //Allows error warninggs but does not stop compiling. Will remove when eslint is added
     new webpack.NoErrorsPlugin(),
+    new webpack.ProvidePlugin({
+      'Promise': 'es6-promise',
+      'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch',
+    }),
   ],
   externals: {
     fs: 'js', // To remove once https://github.com/benjamn/recast/pull/238 is released
@@ -127,6 +139,6 @@ const config = {
   eslint: {
     configFile: '../.eslintrc',
   },
-};
+}
 
-module.exports = config;
+module.exports = config

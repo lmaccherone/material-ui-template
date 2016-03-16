@@ -65,6 +65,10 @@ const config = {
       {from: 'www/css', to: 'css'},
       {from: 'www/images', to: 'images'},
     ], path.resolve(__dirname, 'src')),
+    new webpack.ProvidePlugin({
+      'Promise': 'es6-promise',
+      'fetch': 'imports?this=>global!exports?global.fetch!whatwg-fetch',
+    }),
   ],
   externals: {
     fs: 'fs', // To remove once https://github.com/benjamn/recast/pull/238 is released

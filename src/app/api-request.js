@@ -1,9 +1,7 @@
 import superagent from 'superagent/lib/client'
 
 module.exports = function(method, endpoint, body, callback) {
-  /*
-  Assumes you want GET if body is missing, otherwise uses POST
-  */
+
   if (!(callback)) {
     callback = body
     body = null

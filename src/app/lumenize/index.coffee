@@ -41,8 +41,8 @@ exports.table = require('./table').table
 
 exports.OLAPCube = require('./OLAPCube').OLAPCube
 
-#exports.histogram = require('./histogram').histogram
-#
+exports.histogram = require('./histogram').histogram
+
 #exports.multiRegression = require('./multiRegression').multiRegression
 #
 #exports.anova = require('./anova').anova

@@ -17,6 +17,7 @@ import VariableRows from './components/pages/page-types/variableRows'
 import EventRate from './components/pages/pendo/EventRate'
 import AnalysisDesigner from './components/pages/pendo/AnalysisDesigner'
 import Analysis from './components/pages/pendo/Analysis'
+import TestAPIRequest from './components/pages/pendo/TestAPIRequest'
 
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
@@ -42,6 +43,7 @@ let appRoutes = {
       {name: "Churn", path: "churn", component: Analysis, analysisName: "Churn"},
       {name: "Event Rate", path: "event-rate", component: EventRate},
       {name: "Analysis Designer", path: "analysis-designer", component: AnalysisDesigner},
+      {name: "Test API Request", path: "test-api-request", component: TestAPIRequest},
     ]},
   ]
 }

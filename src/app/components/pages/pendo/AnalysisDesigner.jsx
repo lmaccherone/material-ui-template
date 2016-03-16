@@ -47,6 +47,14 @@ export default React.createClass({
     muiTheme: React.PropTypes.object,
   },
 
+  childContextTypes: {
+    muiTheme: React.PropTypes.object,
+  },
+
+  getChildContext() {
+    return { muiTheme: this.context.muiTheme }
+  },
+
   mixins: [StylePropable, StyleResizable],
 
   getInitialState() {

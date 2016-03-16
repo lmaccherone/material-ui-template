@@ -25,8 +25,11 @@
     "brace": "^0.7.0",
     "coffee-react-transform": "^3.3.0",
     "coffee-script": "^1.10.0",
+    "es6-promise": "^3.1.2",
+    "exports-loader": "^0.6.3",
     "highcharts-exporting": "0.0.8",
     "highcharts-more": "0.0.8",
+    "imports-loader": "^0.6.5",
     "install": "^0.4.4",
     "js-yaml": "^3.5.3",
     "lodash": "^3.10.1",
@@ -37,6 +40,7 @@
     "react-highcharts": "^6.0.0",
     "rfc6902-json-diff": "^0.1.2",
     "superagent": "^1.7.2",
+    "whatwg-fetch": "^0.11.0",
     "zxcvbn": "^4.2.0"
   },
   "peerDependencies": {
@@ -45,7 +49,7 @@
     "react-tap-event-plugin": "^0.2.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.3.17",
+    "babel-cli": "^6.6.5",
     "babel-eslint": "^5.0.0-beta6",
     "babel-loader": "^6.2.0",
     "babel-plugin-add-module-exports": "^0.1.2",
