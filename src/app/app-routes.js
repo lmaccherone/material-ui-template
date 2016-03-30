@@ -14,11 +14,6 @@ import Blank from './components/pages/page-types/blank'
 import Config from './components/pages/page-types/config'
 import VariableRows from './components/pages/page-types/variableRows'
 
-import EventRate from './components/pages/pendo/EventRate'
-import AnalysisDesigner from './components/pages/pendo/AnalysisDesigner'
-import Analysis from './components/pages/pendo/Analysis'
-import TestAPIRequest from './components/pages/pendo/TestAPIRequest'
-
 let appRoutes = {
   path: '/', component: Master, hidden: true, indexRoute: {component: Home}, childRoutes: [
     {name: "Customization", path: "customization", redirectTo: "/customization/themes", childRoutes: [
@@ -38,12 +33,6 @@ let appRoutes = {
       {name: "3 Level Menu", path: "3-level", childRoutes: [
         {name: "Blank", path: "blank", component: Blank},
       ]},
-    ]},
-    {name: "Pendo", path: "pendo", redirectTo: "/pendo/churn", childRoutes: [
-      {name: "Churn", path: "churn", component: Analysis, analysisName: "Churn"},
-      {name: "Event Rate", path: "event-rate", component: EventRate},
-      {name: "Analysis Designer", path: "analysis-designer", component: AnalysisDesigner},
-      {name: "Test API Request", path: "test-api-request", component: TestAPIRequest},
     ]},
   ]
 }

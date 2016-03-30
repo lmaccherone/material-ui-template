@@ -1,26 +1,66 @@
+utils = require('../src/app/lumenize/utils')
 histogram = require('../src/app/lumenize/histogram').histogram
 
 rows = [
-  {age:  7},
-  {age: 25},
-  {age: 23},
-  {age: 27},
-  {age: 34},
-  {age: 55},
-  {age: 42},
-  {age: 13},
-  {age: 11},
-  {age: 23},
-  {age: 31},
-  {age: 32},
-  {age: 29},
-  {age: 16},
-  {age: 31},
-  {age: 22},
-  {age: 25},
+  {age:  7, sex: 'M'},
+  {age: 25, sex: 'F'},
+  {age: 23, sex: 'F'},
+  {age: 27, sex: 'F'},
+  {age: 34, sex: 'M'},
+  {age: 55, sex: 'F'},
+  {age: 42, sex: 'F'},
+  {age: 13, sex: 'M'},
+  {age: 11, sex: 'M'},
+  {age: 23, sex: 'F'},
+  {age: 31, sex: 'F'},
+  {age: 32, sex: 'F'},
+  {age: 29, sex: 'M'},
+  {age: 16, sex: 'F'},
+  {age: 31, sex: 'F'},
+  {age: 22, sex: 'F'},
+  {age: 25, sex: 'F'},
 ]
 
 exports.histogramTest =
+
+  testDisctiminator: (test) ->
+    h = histogram.discriminated(rows, 'age', 'sex')
+
+    expected = {
+      "categories": ["7-23", "23-39", "39-56"],
+      "series": [
+        {
+          "name": "M",
+          "data": [
+            {"index": 0, "startOn": 7, "endBelow": 23, "label": "7-23", "count": 3},
+            {"index": 1, "startOn": 23, "endBelow": 39, "label": "23-39", "count": 2},
+            {"index": 2, "startOn": 39, "endBelow": 56, "label": "39-56", "count": 0}
+          ]
+        },
+        {
+          "name": "F",
+          "data": [
+            {"index": 0, "startOn": 7, "endBelow": 23, "label": "7-23", "count": 2},
+            {"index": 1, "startOn": 23, "endBelow": 39, "label": "23-39", "count": 8},
+            {"index": 2, "startOn": 39, "endBelow": 56, "label": "39-56", "count": 2}
+          ]
+        }
+      ],
+      "discriminatorValues": ["M", "F"],
+      "stats": [
+        {"min": 7, "p25": 11, "median": 13, "p75": 29, "max": 34},
+        {"min": 16, "p25": 23, "median": 26, "p75": 31.25, "max": 55}
+      ],
+      "boxPlotArrays": [
+        [ 7, 11, 13, 29   , 34],
+        [16, 23, 26, 31.25, 55]
+      ],
+      "strength": 27.34375
+    }
+
+    test.deepEqual(expected, h)
+
+    test.done()
 
   testControlledBucketing: (test) ->
 

@@ -335,7 +335,7 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   ###
   tempBuckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
 
-  #  return tempBuckets
+#  return tempBuckets
 
   if tempBuckets.length < 2
     buckets = tempBuckets
@@ -371,7 +371,7 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   # reindex and add labels
   for bucket, index in buckets
     bucket.index = index
-    #    delete bucket.index
+#    delete bucket.index
     if bucket.startOn? and bucket.endBelow?
       bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
     else if bucket.startOn?
@@ -497,6 +497,93 @@ histogram.histogram = (rows, valueField, type = histogram.constantWidth, signifi
   buckets = histogram.buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
   return histogram.histogramFromBuckets(rows, valueField, buckets)
 
+histogram.discriminated = (rows, valueField, discriminatorField, type = histogram.constantWidth, significance = 1) ->
+  ###
+  @method discriminated
+  @static
+  @param {Object[]} rows Unlike the other histogram methods, this one requires the rows to be Objects becase we need
+   both a valueField and a discriminatorField.
+  @param {String} valueField Specifies the field containing the values to calculate the histogram on
+  @param {String} discriminatorField Specifies the field containing the discriminator to split the histogram series by
+  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Four schemes
+    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, histogram.bucketsLog, and histogram.bucketsVOptimal.
+    However, you can inject your own.
+  @return {Object}
+
+  Will split the rows into series based upon unique discriminator values. It uses the smallest set to determine the number
+  of buckets, but it uses the entire set to determin the min, and max values. Then it calculates the histogram for each
+  series using the same buckets.
+
+  Note the shape of this output is very different from the other histogram methods. It's designed to be easily graphed
+  with HighCharts.
+  ###
+
+  discriminatedData = {}
+  for row in rows
+    value = row[valueField]
+    discriminatorValue = row[discriminatorField]
+    
+    if minValue?
+      minValue = Math.min(minValue, value)
+    else
+      minValue = value
+  
+    if maxValue?
+      maxValue = Math.max(maxValue, value)
+    else
+      maxValue = value
+
+    unless discriminatedData[discriminatorValue]?
+      discriminatedData[discriminatorValue] = []
+    discriminatedData[discriminatorValue].push(row)
+
+  minCount = null
+  for discriminatorValue, data of discriminatedData
+    if minCount?
+      if data.length < minCount
+        minCount = data.length
+        smallestSetOfData = data
+    else
+      minCount = data.length
+      smallestSetOfData = data
+
+  bucketCount = Math.ceil(Math.sqrt(minCount))  # Rounding up instead of rounding down because bucketCount is calculated from the smallestSetOfData
+
+  significance = 1
+  buckets = histogram.buckets(smallestSetOfData, valueField, type, significance, minValue, maxValue + significance, bucketCount)
+
+  series = []
+  categories = (bucket.label for bucket in buckets)
+  for discriminatorValue, data of discriminatedData
+    row = {name: discriminatorValue, data: histogram.histogramFromBuckets(data, valueField, buckets)}
+    series.push(row)
+
+  # Calculate stats for each series
+  lowerQuartileCalculator = functions.percentileCreator(25)
+  upperQuartileCalculator = functions.percentileCreator(75)
+  discriminatorValues = []
+  stats = []
+  boxPlotArrays = []
+  for discriminatorValue, data of discriminatedData
+    values = (row[valueField] for row in data)
+    min = functions.min(values)
+    p25 = lowerQuartileCalculator(values)
+    median = functions.median(values)
+    p75 = upperQuartileCalculator(values)
+    max = functions.max(values)
+    row = {min, p25, median, p75, max}
+    boxPlotArray = [min, p25, median, p75, max]
+    stats.push(row)
+    boxPlotArrays.push(boxPlotArray)
+    discriminatorValues.push(discriminatorValue)
+
+  if discriminatorValues.length is 2  # TODO: Make this work for more than two discriminatorValues
+    rawStrength = Math.abs(stats[0].p75 - stats[1].p25 + stats[1].p75 - stats[0].p25)
+    strength = rawStrength * 50 / (maxValue - minValue)
+  else
+    strength = null
+
+  return {categories, series, discriminatorValues, stats, boxPlotArrays, strength}
 
 histogram.clipping = (rows, valueField, noClipping = false) ->
   ###
@@ -580,7 +667,7 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
       lastBucket = buckets[buckets.length - 1]
       console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
       # 85 59.68421052631579
-
+            
   ###
   if valueField?
     chartValues = (row[valueField] for row in rows)
@@ -600,21 +687,21 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
     if isNaN(upperBound) or upperBound > max
       upperBound = max
     chartValuesMinusOutliers = (c for c in chartValues when c <= upperBound)
-
+  
   bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length))
-
+  
   if bucketCount < 3
     bucketCount = 2
 
   bucketSize = Math.floor(upperBound / bucketCount) + 1
-
+  
   upperBound = bucketSize * bucketCount
-
+  
   chartMax = upperBound + bucketSize  # This will be at the very top of the top bucket
-
+  
   valueMax = Math.floor(functions.max(chartValues)) + 1
   valueMax = Math.max(chartMax, valueMax)
-
+  
   # add clippedChartValues to timeInState
   # the clippedChartValue is interpolated between upperBound and valueMax to fit within one bucketSize
   for row in rows
@@ -622,22 +709,22 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
       row.clippedChartValue = upperBound + bucketSize * (row[valueField] - upperBound) / (valueMax - upperBound)
     else
       row.clippedChartValue = row[valueField]
-
+    
   buckets = []
   for i in [0..bucketCount]
     bucket = {
-      label: "#{Math.floor(i * bucketSize)}-#{Math.floor((i + 1) * bucketSize)}",
+      label: "#{Math.floor(i * bucketSize)}-#{Math.floor((i + 1) * bucketSize)}", 
       rows: []
       count: 0
     }
     buckets.push(bucket)
-
+  
   clipped = not (valueMax == chartMax)
   if clipped
     buckets[bucketCount].label = "#{upperBound}-#{valueMax}*"
   else
     buckets[bucketCount].label = "#{upperBound}-#{valueMax}"
-
+  
   total = 0
   for row in rows
     if row[valueField] >= upperBound
@@ -647,7 +734,7 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
     bucket.rows.push(row)
     bucket.count++
     total++
-
+  
   percentile = 0
   for b in buckets
     percentile += b.count / total
@@ -656,7 +743,7 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
     else
       b.percentile = percentile
   buckets[buckets.length - 1].percentile = 1.0
-
+    
   return {buckets, bucketSize, chartMax, clipped, valueMax}
-
+    
 exports.histogram = histogram
