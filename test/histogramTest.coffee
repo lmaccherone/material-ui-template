@@ -31,19 +31,11 @@ exports.histogramTest =
       "series": [
         {
           "name": "M",
-          "data": [
-            {"index": 0, "startOn": 7, "endBelow": 23, "label": "7-23", "count": 3},
-            {"index": 1, "startOn": 23, "endBelow": 39, "label": "23-39", "count": 2},
-            {"index": 2, "startOn": 39, "endBelow": 56, "label": "39-56", "count": 0}
-          ]
+          "data": [3, 2, 0]
         },
         {
           "name": "F",
-          "data": [
-            {"index": 0, "startOn": 7, "endBelow": 23, "label": "7-23", "count": 2},
-            {"index": 1, "startOn": 23, "endBelow": 39, "label": "23-39", "count": 8},
-            {"index": 2, "startOn": 39, "endBelow": 56, "label": "39-56", "count": 2}
-          ]
+          "data": [2, 8, 2]
         }
       ],
       "discriminatorValues": ["M", "F"],

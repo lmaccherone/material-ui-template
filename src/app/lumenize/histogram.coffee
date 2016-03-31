@@ -555,7 +555,9 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
   series = []
   categories = (bucket.label for bucket in buckets)
   for discriminatorValue, data of discriminatedData
-    row = {name: discriminatorValue, data: histogram.histogramFromBuckets(data, valueField, buckets)}
+    h = histogram.histogramFromBuckets(data, valueField, buckets)
+    data = (row.count for row in h)
+    row = {name: discriminatorValue, data: data}
     series.push(row)
 
   # Calculate stats for each series
