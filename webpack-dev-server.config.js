@@ -59,6 +59,7 @@ const config = {
     new HtmlWebpackPlugin({
       inject: false,
       template: path.join(__dirname, '/src/www/index.html'),
+      filename: 'index.html'
     }),
     //Allows for sync with browser while developing (like BorwserSync)
     new webpack.HotModuleReplacementPlugin(),
